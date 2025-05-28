@@ -1,6 +1,9 @@
 package ru.practicum.repository;
 
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
@@ -12,8 +15,9 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@RequiredArgsConstructor
 @Repository
+@RequiredArgsConstructor
+
 public class CustomDaoImpl implements CustomDao {
     private final NamedParameterJdbcTemplate jdbcTemplate;
 
@@ -33,7 +37,7 @@ public class CustomDaoImpl implements CustomDao {
                 sql = "select app, uri, count(distinct ip) hits from stats " +
                         "where time_stamp between :start and :end group by app, uri order by hits desc";
             }
-            statsStorage = jdbcTemplate.query(sql, parameters, CustomDaoImpl::makeToStats);
+            statsStorage = jdbcTemplate.query(sql, parameters, this::makeToStats);
         } else {
             String sql;
             parameters = new MapSqlParameterSource()
@@ -49,13 +53,13 @@ public class CustomDaoImpl implements CustomDao {
                         "where time_stamp between :start and :end and uri in (:uris) " +
                         "group by app, uri order by hits desc";
             }
-            statsStorage = jdbcTemplate.query(sql, parameters, CustomDaoImpl::makeToStats);
+            statsStorage = jdbcTemplate.query(sql, parameters, this::makeToStats);
         }
 
         return statsStorage;
     }
 
-    private static Stats makeToStats(ResultSet rs, int rowNum) throws SQLException {
+    private Stats makeToStats(ResultSet rs, int rowNum) throws SQLException {
         Stats stats = new Stats();
         stats.setApp(rs.getString("app"));
         stats.setUri(rs.getString("uri"));

@@ -1,29 +1,25 @@
 package ru.practicum.model;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.experimental.FieldDefaults;
-
+import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "stats")
-@Getter
-@Setter
-@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Stats {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    long id;
-    String app;
-    String uri;
-    String ip;
+    private long id;
+    private String app;
+    private String uri;
+    private String ip;
     @Column(name = "time_stamp")
-    LocalDateTime timestamp;
-    @Transient
-    Long hits = 0L;
+    private LocalDateTime timestamp;
+    private Long hits = 0L;
+
 }

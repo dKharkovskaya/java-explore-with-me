@@ -1,7 +1,6 @@
 package ru.practicum.mapper;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import lombok.experimental.UtilityClass;
 import ru.practicum.dto.StatsDtoInput;
 import ru.practicum.dto.StatsDtoOutput;
 import ru.practicum.model.Stats;
@@ -13,7 +12,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@UtilityClass
 public class StatsMapper {
 
     public static final DateTimeFormatter FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -34,7 +33,7 @@ public class StatsMapper {
                 .app(stats.getApp())
                 .uri(stats.getUri())
                 .hits(stats.getHits())
-                .build();
+               .build();
     }
 
     public static List<StatsDtoOutput> toStatsDtoList(List<Stats> statsStorages) {
