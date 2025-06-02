@@ -8,6 +8,7 @@
         <artifactId>stats-service</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
+    <packaging>jar</packaging>
 
     <artifactId>stat-dto</artifactId>
 
