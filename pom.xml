@@ -4,7 +4,9 @@
 	<modelVersion>4.0.0</modelVersion>
 	<modules>
 		<module>ewm-service</module>
-		<module>stats-server</module>
+		<module>stats-service/stat-client</module>
+		<module>stats-service/stat-dto</module>
+		<module>stats-service/stat-server</module>
 	</modules>
 
 	<parent>
@@ -20,11 +22,6 @@
 	<artifactId>explore-with-me</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
-
-	<properties>
-		<java.version>11</java.version>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	</properties>
 
 	<build>
 		<pluginManagement>
@@ -60,7 +57,6 @@
 						<dependency>
 							<groupId>com.puppycrawl.tools</groupId>
 							<artifactId>checkstyle</artifactId>
-							<version>10.3</version>
 						</dependency>
 					</dependencies>
 				</plugin>
