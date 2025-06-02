@@ -11,8 +11,6 @@
 
     <artifactId>stat-dto</artifactId>
 
-    <packaging>pom</packaging>
-
     <dependencies>
         <dependency>
             <groupId>org.hibernate.validator</groupId>
