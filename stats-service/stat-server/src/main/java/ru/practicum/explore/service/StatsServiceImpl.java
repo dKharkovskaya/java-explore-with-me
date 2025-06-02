@@ -1,6 +1,5 @@
 package ru.practicum.explore.service;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.explore.StatsDtoOutput;
@@ -46,7 +45,7 @@ public class StatsServiceImpl implements StatsService {
                 Optional<StatsDtoOutput> stat;
                 if (unique) {
                     stat = statsRepository.findByUriAndUniqueId(uri,
-                           start, end);
+                            start, end);
                 } else {
                     stat = statsRepository.findByUriAndNotUniqueId(uri,
                             start, end);
