@@ -2,7 +2,6 @@ package ru.practicum.explore;
 
 import lombok.*;
 
-@Data
 
 public class StatsDtoOutput {
     private String app;
