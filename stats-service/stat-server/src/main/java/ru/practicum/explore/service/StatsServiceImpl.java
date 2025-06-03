@@ -1,7 +1,7 @@
 package ru.practicum.explore.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.explore.StatsDtoInput;
 import ru.practicum.explore.StatsDtoOutput;
 import ru.practicum.explore.repository.StatsRepository;
@@ -14,19 +14,14 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-@Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class StatsServiceImpl implements StatsService {
 
     private final StatsRepository statsRepository;
 
-    public StatsServiceImpl(StatsRepository statsRepository) {
-        this.statsRepository = statsRepository;
-    }
-
     @Override
     public StatsDtoInput hit(StatsDtoInput statsDtoInput) {
-        StatsDtoInput statsStorage = statsRepository.save(statsDtoInput);
-        return statsDtoInput;
+        return statsRepository.save(statsDtoInput);
     }
 
     @Override

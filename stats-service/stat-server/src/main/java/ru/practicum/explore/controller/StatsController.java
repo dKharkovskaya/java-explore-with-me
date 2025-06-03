@@ -1,5 +1,6 @@
 package ru.practicum.explore.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -13,16 +14,13 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
-@RequestMapping
 @Slf4j
+@RequiredArgsConstructor
 public class StatsController {
 
     public static final String FORMAT = "yyyy-MM-dd HH:mm:ss";
     private final StatsService service;
 
-    public StatsController(StatsService service) {
-        this.service = service;
-    }
 
     @PostMapping("/hit")
     @ResponseStatus(HttpStatus.CREATED)
