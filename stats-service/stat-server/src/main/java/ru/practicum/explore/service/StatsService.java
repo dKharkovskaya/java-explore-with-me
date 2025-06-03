@@ -1,6 +1,5 @@
 package ru.practicum.explore.service;
 
-import ru.practicum.explore.StatsDtoInput;
 import ru.practicum.explore.StatsDtoOutput;
 import ru.practicum.explore.model.Stats;
 
