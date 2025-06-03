@@ -17,6 +17,7 @@ public class StatsMapper {
 
     public static Stats toStats(StatsDtoInput statsDtoInput) {
         Stats stats = new Stats();
+        stats.setId(statsDtoInput.getId());
         stats.setApp(statsDtoInput.getApp());
         stats.setUri(statsDtoInput.getUri());
         stats.setIp(statsDtoInput.getIp());

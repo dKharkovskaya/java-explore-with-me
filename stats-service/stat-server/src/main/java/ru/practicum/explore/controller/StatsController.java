@@ -1,12 +1,11 @@
 package ru.practicum.explore.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.explore.StatsDtoInput;
 import ru.practicum.explore.StatsDtoOutput;
-import ru.practicum.explore.mapper.StatsMapper;
-import ru.practicum.explore.model.Stats;
 import ru.practicum.explore.service.StatsService;
 
 import javax.validation.Valid;
@@ -15,6 +14,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping
+@Slf4j
 public class StatsController {
 
     public static final String FORMAT = "yyyy-MM-dd HH:mm:ss";
@@ -26,8 +26,8 @@ public class StatsController {
 
     @PostMapping("/hit")
     @ResponseStatus(HttpStatus.CREATED)
-    public Stats hit(@RequestBody @Valid StatsDtoInput statsDtoInput) {
-        return service.hit(StatsMapper.toStats(statsDtoInput));
+    public StatsDtoInput hit(@RequestBody @Valid StatsDtoInput statsDtoInput) {
+        return service.hit(statsDtoInput);
     }
 
     @GetMapping("/stats")

@@ -3,6 +3,7 @@ package ru.practicum.explore.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import ru.practicum.explore.StatsDtoInput;
 import ru.practicum.explore.StatsDtoOutput;
 import ru.practicum.explore.model.Stats;
 
@@ -13,7 +14,7 @@ import java.util.Optional;
 @Repository
 public interface StatsRepository extends JpaRepository<Stats, Long> {
 
-    Stats save(Stats stats);
+    StatsDtoInput save(StatsDtoInput statsDtoInput);
 
     @Query("SELECT new ru.practicum.explore.StatsDtoOutput(s.app, s.uri, CAST(COUNT(s.ip) AS integer)) " +
             "FROM Stats AS s " +

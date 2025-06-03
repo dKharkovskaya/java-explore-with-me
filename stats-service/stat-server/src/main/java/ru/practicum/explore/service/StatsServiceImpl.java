@@ -2,8 +2,8 @@ package ru.practicum.explore.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.explore.StatsDtoInput;
 import ru.practicum.explore.StatsDtoOutput;
-import ru.practicum.explore.model.Stats;
 import ru.practicum.explore.repository.StatsRepository;
 
 import java.time.LocalDateTime;
@@ -23,12 +23,10 @@ public class StatsServiceImpl implements StatsService {
         this.statsRepository = statsRepository;
     }
 
-
-    @Transactional
     @Override
-    public Stats hit(Stats stats) {
-        Stats statsStorage = statsRepository.save(stats);
-        return stats;
+    public StatsDtoInput hit(StatsDtoInput statsDtoInput) {
+        StatsDtoInput statsStorage = statsRepository.save(statsDtoInput);
+        return statsDtoInput;
     }
 
     @Override
