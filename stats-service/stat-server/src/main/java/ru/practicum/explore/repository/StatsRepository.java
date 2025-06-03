@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-@Repository
 public interface StatsRepository extends JpaRepository<Stats, Long> {
 
     @Query("SELECT new ru.practicum.explore.StatsDtoOutput(s.app, s.uri, CAST(COUNT(s.ip) AS integer)) " +

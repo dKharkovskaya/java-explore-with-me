@@ -1,10 +1,9 @@
 drop table if exists stats cascade;
 
-create table if not exists stats
-(
-    id bigint generated always as identity primary key,
-    app varchar(100),
-    uri varchar(100),
-    ip varchar(100),
-    time_stamp TIMESTAMP
+CREATE TABLE IF NOT EXISTS stats (
+    id BIGSERIAL PRIMARY KEY,
+    app VARCHAR(255) NOT NULL,
+    uri VARCHAR(255) NOT NULL,
+    ip VARCHAR(255) NOT NULL,
+    time_stamp TIMESTAMP WITHOUT TIME ZONE NOT NULL
 );

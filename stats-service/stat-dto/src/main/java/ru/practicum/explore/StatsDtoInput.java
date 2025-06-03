@@ -5,14 +5,18 @@ import lombok.*;
 import javax.validation.constraints.NotBlank;
 
 @Data
+@NoArgsConstructor
 @AllArgsConstructor
 public class StatsDtoInput {
-    @NotBlank
+    @NotBlank(message = "App name cannot be blank")
     private String app;
-    @NotBlank
+
+    @NotBlank(message = "URI cannot be blank")
     private String uri;
-    @NotBlank
+
+    @NotBlank(message = "IP address cannot be blank")
     private String ip;
-    @NotBlank
-    private String timestamp;
+
+    @NotBlank(message = "Timestamp cannot be blank")
+    private String timestamp; // формат: "yyyy-MM-dd HH:mm:ss"
 }
