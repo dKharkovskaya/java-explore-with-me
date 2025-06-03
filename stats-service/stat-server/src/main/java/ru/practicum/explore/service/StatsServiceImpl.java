@@ -2,8 +2,9 @@ package ru.practicum.explore.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.practicum.explore.StatsDtoInput;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.explore.StatsDtoOutput;
+import ru.practicum.explore.model.Stats;
 import ru.practicum.explore.repository.StatsRepository;
 
 import java.time.LocalDateTime;
@@ -15,13 +16,14 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class StatsServiceImpl implements StatsService {
 
     private final StatsRepository statsRepository;
 
     @Override
-    public StatsDtoInput hit(StatsDtoInput statsDtoInput) {
-        return statsRepository.save(statsDtoInput);
+    public Stats hit(Stats stats) {
+        return statsRepository.save(stats);
     }
 
     @Override

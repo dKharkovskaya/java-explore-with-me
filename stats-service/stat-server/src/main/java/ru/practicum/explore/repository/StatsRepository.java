@@ -14,8 +14,6 @@ import java.util.Optional;
 @Repository
 public interface StatsRepository extends JpaRepository<Stats, Long> {
 
-    StatsDtoInput save(StatsDtoInput statsDtoInput);
-
     @Query("SELECT new ru.practicum.explore.StatsDtoOutput(s.app, s.uri, CAST(COUNT(s.ip) AS integer)) " +
             "FROM Stats AS s " +
             "WHERE s.timestamp BETWEEN ?1 AND ?2 " +

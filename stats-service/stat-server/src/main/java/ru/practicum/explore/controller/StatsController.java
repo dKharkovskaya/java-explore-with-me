@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.explore.StatsDtoInput;
 import ru.practicum.explore.StatsDtoOutput;
+import ru.practicum.explore.mapper.StatsMapper;
+import ru.practicum.explore.model.Stats;
 import ru.practicum.explore.service.StatsService;
 
 import javax.validation.Valid;
@@ -16,6 +18,7 @@ import java.util.List;
 @RestController
 @Slf4j
 @RequiredArgsConstructor
+@RequestMapping
 public class StatsController {
 
     public static final String FORMAT = "yyyy-MM-dd HH:mm:ss";
@@ -24,8 +27,8 @@ public class StatsController {
 
     @PostMapping("/hit")
     @ResponseStatus(HttpStatus.CREATED)
-    public StatsDtoInput hit(@RequestBody @Valid StatsDtoInput statsDtoInput) {
-        return service.hit(statsDtoInput);
+    public Stats hit(@RequestBody @Valid StatsDtoInput dto) {
+        return service.hit(StatsMapper.toStats(dto));
     }
 
     @GetMapping("/stats")
