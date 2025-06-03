@@ -2,15 +2,17 @@ package ru.practicum.explore;
 
 import lombok.*;
 
+import javax.validation.constraints.NotBlank;
+
 @Data
-@Getter
-@Setter
 @AllArgsConstructor
-@RequiredArgsConstructor
 public class StatsDtoInput {
-    private Long id;
+    @NotBlank
     private String app;
+    @NotBlank
     private String uri;
+    @NotBlank
     private String ip;
+    @NotBlank
     private String timestamp;
 }
