@@ -11,28 +11,28 @@ import java.util.Optional;
 
 public interface StatsRepository extends JpaRepository<Stats, Long> {
 
-    @Query("SELECT new ru.practicum.explore.StatsDtoOutput(s.app, s.uri, CAST(COUNT(s.ip) AS integer)) " +
-            "FROM Stats AS s " +
-            "WHERE s.timestamp BETWEEN ?1 AND ?2 " +
-            "GROUP BY s.app, s.uri, s.ip " +
-            "ORDER BY COUNT(s.ip)")
-    List<StatsDtoOutput> findAllUniqueId(LocalDateTime start, LocalDateTime end);
-
-    @Query("SELECT new ru.practicum.explore.StatsDtoOutput(s.app, s.uri, CAST(COUNT(s.ip) AS integer)) " +
-            "FROM Stats AS s " +
+    @Query("SELECT new ru.practicum.explore.StatsDtoOutput(s.app, s.uri, COUNT(DISTINCT s.ip)) " +
+            "FROM Stats s " +
             "WHERE s.timestamp BETWEEN ?1 AND ?2 " +
             "GROUP BY s.app, s.uri " +
-            "ORDER BY COUNT(s.ip)")
+            "ORDER BY COUNT(DISTINCT s.ip) DESC")
+    List<StatsDtoOutput> findAllUniqueId(LocalDateTime start, LocalDateTime end);
+
+    @Query("SELECT new ru.practicum.explore.StatsDtoOutput(s.app, s.uri, COUNT(s.ip)) " +
+            "FROM Stats s " +
+            "WHERE s.timestamp BETWEEN ?1 AND ?2 " +
+            "GROUP BY s.app, s.uri " +
+            "ORDER BY COUNT(s.ip) DESC")
     List<StatsDtoOutput> findAllNotUniqueId(LocalDateTime start, LocalDateTime end);
 
-    @Query("SELECT new ru.practicum.explore.StatsDtoOutput(s.app, s.uri, CAST(COUNT(s.ip) AS integer)) " +
-            "FROM Stats AS s " +
+    @Query("SELECT new ru.practicum.explore.StatsDtoOutput(s.app, s.uri, COUNT(DISTINCT s.ip)) " +
+            "FROM Stats s " +
             "WHERE s.uri = ?1 AND s.timestamp BETWEEN ?2 AND ?3 " +
-            "GROUP BY s.app, s.uri, s.ip")
+            "GROUP BY s.app, s.uri")
     Optional<StatsDtoOutput> findByUriAndUniqueId(String uri, LocalDateTime start, LocalDateTime end);
 
-    @Query("SELECT new ru.practicum.explore.StatsDtoOutput(s.app, s.uri, CAST(COUNT(s.ip) AS integer)) " +
-            "FROM Stats AS s " +
+    @Query("SELECT new ru.practicum.explore.StatsDtoOutput(s.app, s.uri, COUNT(s.ip)) " +
+            "FROM Stats s " +
             "WHERE s.uri = ?1 AND s.timestamp BETWEEN ?2 AND ?3 " +
             "GROUP BY s.app, s.uri")
     Optional<StatsDtoOutput> findByUriAndNotUniqueId(String uri, LocalDateTime start, LocalDateTime end);

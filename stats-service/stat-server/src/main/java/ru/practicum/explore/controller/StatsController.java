@@ -11,7 +11,9 @@ import ru.practicum.explore.service.StatsService;
 
 import javax.validation.Valid;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -28,10 +30,22 @@ public class StatsController {
     }
 
     @GetMapping("/stats")
-    public List<StatsDtoOutput> getStats(@RequestParam @DateTimeFormat(pattern = DATE_TIME_PATTERN) LocalDateTime start,
-                                         @RequestParam @DateTimeFormat(pattern = DATE_TIME_PATTERN) LocalDateTime end,
-                                         @RequestParam(required = false) List<String> uris,
-                                         @RequestParam(defaultValue = "false") Boolean unique) {
-        return statsService.getStats(start, end, uris, unique);
+    public List<StatsDtoOutput> getStats(
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime start,
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end,
+            @RequestParam(required = false) List<String> uris,
+            @RequestParam Boolean unique) {
+        if (uris == null || uris.isEmpty()) {
+            return unique ?
+                    statsService.getStatsUnique(start, end) :
+                    statsService.getStatsAll(start, end);
+        } else {
+            return uris.stream()
+                    .map(uri -> statsService.getStatsByUri(start, end, uri, unique))
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .sorted(Comparator.comparing(StatsDtoOutput::getHits).reversed())
+                    .toList();
+        }
     }
 }

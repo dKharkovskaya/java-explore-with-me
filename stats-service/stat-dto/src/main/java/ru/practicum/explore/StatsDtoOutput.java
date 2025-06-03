@@ -3,10 +3,9 @@ package ru.practicum.explore;
 import lombok.*;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
 public class StatsDtoOutput {
-    private String app;
-    private String uri;
-    private int hits;
+    private final String app;
+    private final String uri;
+    private final Long hits;
 }
