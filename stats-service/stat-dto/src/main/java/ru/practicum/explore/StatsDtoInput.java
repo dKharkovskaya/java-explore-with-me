@@ -3,11 +3,14 @@ package ru.practicum.explore;
 import lombok.*;
 
 import javax.validation.constraints.NotBlank;
+import java.time.format.DateTimeFormatter;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class StatsDtoInput {
+    public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
     @NotBlank(message = "App name cannot be blank")
     private String app;
 
