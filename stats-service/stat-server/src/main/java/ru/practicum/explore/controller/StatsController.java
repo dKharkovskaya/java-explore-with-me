@@ -1,6 +1,7 @@
 package ru.practicum.explore.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.explore.StatsDtoInput;
@@ -16,12 +17,17 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequiredArgsConstructor
+//@RequiredArgsConstructor
 @RequestMapping
 public class StatsController {
 
     public static final String DATE_TIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
     private final StatsService statsService;
+
+    @Autowired
+    public StatsController(StatsService statsService) {
+        this.statsService = statsService;
+    }
 
     @PostMapping("/hit")
     public Stats hit(@RequestBody @Valid StatsDtoInput dto) {

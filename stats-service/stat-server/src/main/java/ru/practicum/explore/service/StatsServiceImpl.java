@@ -12,11 +12,15 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
+//@RequiredArgsConstructor
 @Transactional
 public class StatsServiceImpl implements StatsService {
 
     private final StatsRepository statsRepository;
+
+    public StatsServiceImpl(StatsRepository statsRepository) {
+        this.statsRepository = statsRepository;
+    }
 
     @Override
     public Stats hit(Stats stats) {

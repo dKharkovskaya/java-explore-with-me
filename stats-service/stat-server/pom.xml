@@ -68,9 +68,9 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>3.1.5</version>
+                <version>3.4.1</version>
                 <configuration>
-                    <mainClass>ru.practicum.explore</mainClass>
+                    <mainClass>ru.practicum.explore.StatServer</mainClass>
                 </configuration>
                 <executions>
                     <execution>
