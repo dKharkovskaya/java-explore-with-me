@@ -10,13 +10,17 @@ public interface EventService {
 
     // Admin API
     EventFullDto updateEventByAdmin(Long eventId, UpdateEventAdminRequest dto);
+
     List<EventFullDto> getEvents(List<Long> users, List<String> states, List<Long> categories,
                                  LocalDateTime rangeStart, LocalDateTime rangeEnd, int from, int size);
 
     // Private API
     EventFullDto addEvent(Long userId, NewEventDto dto);
+
     List<EventShortDto> getUserEvents(Long userId, int from, int size);
+
     EventFullDto getUserEventById(Long userId, Long eventId);
+
     EventFullDto updateEventByUser(Long userId, Long eventId, UpdateEventUserRequest dto);
 
     // Public API
