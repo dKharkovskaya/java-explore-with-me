@@ -17,17 +17,12 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-//@RequiredArgsConstructor
+@RequiredArgsConstructor
 @RequestMapping
 public class StatsController {
 
     public static final String DATE_TIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
     private final StatsService statsService;
-
-    @Autowired
-    public StatsController(StatsService statsService) {
-        this.statsService = statsService;
-    }
 
     @PostMapping("/hit")
     public Stats hit(@RequestBody @Valid StatsDtoInput dto) {
