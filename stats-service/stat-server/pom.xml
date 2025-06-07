@@ -71,7 +71,6 @@
                 <version>3.1.5</version>
                 <configuration>
                     <mainClass>ru.practicum.explore</mainClass>
-                    <layers>JAR</layers>
                 </configuration>
                 <executions>
                     <execution>
