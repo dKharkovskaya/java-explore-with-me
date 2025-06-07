@@ -1,0 +1,2 @@
+stat-service:
+  url: http://stat-service-container:9090
