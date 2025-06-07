@@ -32,8 +32,9 @@ services:
       - ewm-db
     environment:
         - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-db:5432/ewm-db
-        - SPRING_DATASOURCE_USERNAME=ewm
-        - SPRING_DATASOURCE_PASSWORD=ewm
+        - SPRING_DATASOURCE_USERNAME=sa
+        - SPRING_DATASOURCE_PASSWORD=12345
+        - STATS_SERVICE_URL=http://stat-service-container:9090
 
   ewm-db:
     image: postgres:16.1
@@ -43,6 +44,6 @@ services:
     volumes:
       - /var/lib/postgresql/data
     environment:
-      POSTGRES_USER: ewm
-      POSTGRES_PASSWORD: ewm
+      POSTGRES_USER: sa
+      POSTGRES_PASSWORD: 12345
       POSTGRES_DB: ewm-db
