@@ -1,6 +1,17 @@
-version: '3.8'
-
 services:
+
+  stats-server:
+    build: stats-service/stat-server
+    container_name: stats-server-container
+    ports:
+      - "9090:8080"
+    depends_on:
+      - stats-db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://stats-db:5432/explore_with_me
+      SPRING_DATASOURCE_USERNAME: sa
+      SPRING_DATASOURCE_PASSWORD: 12345
+
   stats-db:
     image: postgres:16.1
     container_name: stats-db
@@ -10,20 +21,16 @@ services:
       POSTGRES_USER: sa
       POSTGRES_PASSWORD: 12345
       POSTGRES_DB: explore_with_me
-    volumes:
-      - stats_db_data:/var/lib/postgresql/data
 
-  stats-server:
-    build:
-      context: ./stats-service/stat-server
-      dockerfile: Dockerfile
-    container_name: stats-server-container
+  ewm-service:
+    build: ./ewm-service
+    container_name: ewm-service-container
     ports:
-      - "9090:8080"
+      - "8080:8080"
     depends_on:
-      - stats-db
+      - ewm-db
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://stats-db:5432/explore_with_me
+      SPRING_DATASOURCE_URL: jdbc:postgresql://ewm-db:5432/ewm-db
       SPRING_DATASOURCE_USERNAME: sa
       SPRING_DATASOURCE_PASSWORD: 12345
 
@@ -36,26 +43,3 @@ services:
       POSTGRES_USER: sa
       POSTGRES_PASSWORD: 12345
       POSTGRES_DB: ewm-db
-    volumes:
-      - ewm_db_data:/var/lib/postgresql/data
-
-  ewm-service:
-    build:
-      context: ./ewm-service
-      dockerfile: Dockerfile
-    container_name: ewm-service-container
-    ports:
-      - "8080:8080"
-    depends_on:
-      - ewm-db
-      - stats-server
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://ewm-db:5432/ewm-db
-      SPRING_DATASOURCE_USERNAME: sa
-      SPRING_DATASOURCE_PASSWORD: 12345
-      STATS_SERVICE_URL: http://stats-server:9090
-    command: ["./wait-for-it.sh", "stats-server:9090", "--timeout=60", "--", "java", "-jar", "app.jar"]
-
-volumes:
-  stats_db_data:
-  ewm_db_data:
