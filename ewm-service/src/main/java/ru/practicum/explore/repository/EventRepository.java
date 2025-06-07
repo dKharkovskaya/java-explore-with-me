@@ -14,23 +14,19 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
     Optional<Event> findByIdAndInitiatorId(Long id, Long userId);
 
-    @Query("SELECT e FROM Event e WHERE " +
-            "(LOWER(e.annotation) LIKE LOWER(CONCAT('%', :text, '%')) OR " +
+    @Query("SELECT e FROM Event e " +
+            "WHERE (LOWER(e.annotation) LIKE LOWER(CONCAT('%', :text, '%')) OR " +
             "LOWER(e.description) LIKE LOWER(CONCAT('%', :text, '%'))) AND " +
             "(:categories IS NULL OR e.category.id IN (:categories)) AND " +
             "(:paid IS NULL OR e.paid = :paid) AND " +
             "e.eventDate BETWEEN :rangeStart AND :rangeEnd AND " +
-            "e.state = 'PUBLISHED' " +
-            "ORDER BY " +
-            "CASE WHEN :sort = 'EVENT_DATE' THEN e.eventDate END ASC, " +
-            "CASE WHEN :sort = 'VIEWS' THEN e.views END DESC")
+            "e.state = 'PUBLISHED'")
     List<Event> findPublishedEventsWithFilters(
             @Param("text") String text,
             @Param("categories") List<Long> categories,
             @Param("paid") Boolean paid,
             @Param("rangeStart") LocalDateTime rangeStart,
-            @Param("rangeEnd") LocalDateTime rangeEnd,
-            @Param("sort") String sort);
+            @Param("rangeEnd") LocalDateTime rangeEnd);
 
     Optional<Event> findByIdAndState(Long id, String state);
 

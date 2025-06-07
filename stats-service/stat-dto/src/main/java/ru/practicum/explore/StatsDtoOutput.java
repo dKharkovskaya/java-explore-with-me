@@ -4,8 +4,9 @@ import lombok.*;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class StatsDtoOutput {
-    private final String app;
-    private final String uri;
-    private final Long hits;
+    private  String app;
+    private  String uri;
+    private  Long hits;
 }

@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -91,7 +92,25 @@ public class EventServiceImpl implements EventService {
         if (rangeStart == null) rangeStart = LocalDateTime.now().plusHours(2); // по умолчанию будущие события
         if (rangeEnd == null) rangeEnd = LocalDateTime.now().plusYears(10);
 
-        List<Event> events = eventRepository.findPublishedEventsWithFilters(text, categories, paid, rangeStart, rangeEnd, sort);
+        List<Event> events = eventRepository.findPublishedEventsWithFilters(text, categories, paid, rangeStart, rangeEnd);
+        /*if ("VIEWS".equals(sort)) {
+            // Загружаем просмотры для каждого события
+            List<String> uris = events.stream()
+                    .map(e -> "/events/" + e.getId())
+                    .toList();
+
+            List<StatsDtoOutput> statsList = statsClient.getStats(rangeStart, rangeEnd, uris, true);
+
+            Map<String, Long> uriToViews = statsList.stream()
+                    .collect(Collectors.toMap(StatsDtoOutput::getUri, StatsDtoOutput::getHits));
+
+            events.sort(Comparator.comparing(
+                    e -> uriToViews.getOrDefault("/events/" + e.getId(), 0L),
+                    Comparator.nullsLast(Long::compareTo)
+            ).reversed());
+        } else {
+            events.sort(Comparator.comparing(Event::getEventDate));
+        }*/
 
         // Логируем в статистику
         List<String> uris = events.stream().map(e -> "/events/" + e.getId()).toList();

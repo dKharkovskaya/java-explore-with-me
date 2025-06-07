@@ -1,6 +1,7 @@
-stats-server:
-  name: ewm-service
-  url: http://stat-service-container:9090
+stats:
+  service:
+    name: ewm-service
+    url: http://localhost:8081
 server:
   port: 8080
 spring:

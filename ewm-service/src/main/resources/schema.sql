@@ -1,17 +1,17 @@
 CREATE TABLE IF NOT EXISTS users (
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(250) NOT NULL CHECK (name <> ''),
-    email VARCHAR(254) NOT NULL UNIQUE CHECK (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$')
+    email VARCHAR(254) NOT NULL,
+    CONSTRAINT pk_user PRIMARY KEY (id),
+    CONSTRAINT uq_user_email UNIQUE (email)
 );
-
-CREATE INDEX idx_users_email ON users(email);
 
 CREATE TABLE IF NOT EXISTS categories (
     id BIGSERIAL PRIMARY KEY,
-    name VARCHAR(50) NOT NULL UNIQUE CHECK (name <> '')
+    name VARCHAR(50) NOT NULL UNIQUE CHECK (name <> ''),
+    CONSTRAINT pk_category PRIMARY KEY (id),
+    CONSTRAINT uq_category_name UNIQUE (name)
 );
-
-CREATE INDEX idx_categories_name ON categories(name);
 
 CREATE TABLE IF NOT EXISTS locations (
     id BIGSERIAL PRIMARY KEY,
@@ -34,13 +34,11 @@ CREATE TABLE IF NOT EXISTS events (
     title VARCHAR(120) NOT NULL CHECK (title <> ''),
     state VARCHAR(30) NOT NULL DEFAULT 'PENDING' CHECK (state IN ('PENDING', 'PUBLISHED', 'CANCELED')),
     initiator_id BIGINT REFERENCES users(id) ON DELETE CASCADE,
-    category_id BIGINT REFERENCES categories(id) ON DELETE SET NULL
+    category_id BIGINT REFERENCES categories(id) ON DELETE SET NULL,
+    CONSTRAINT pk_event PRIMARY KEY (id),
+    FOREIGN KEY (category_id) REFERENCES categories (id) ON DELETE CASCADE,
+    FOREIGN KEY (initiator_id) REFERENCES users (id) ON DELETE CASCADE
 );
-
-CREATE INDEX idx_events_initiator_id ON events(initiator_id);
-CREATE INDEX idx_events_category_id ON events(category_id);
-CREATE INDEX idx_events_event_date ON events(event_date);
-CREATE INDEX idx_events_state ON events(state);
 
 CREATE TABLE IF NOT EXISTS participation_requests (
     id BIGSERIAL PRIMARY KEY,
@@ -48,26 +46,22 @@ CREATE TABLE IF NOT EXISTS participation_requests (
     event_id BIGINT REFERENCES events(id) ON DELETE CASCADE,
     requester_id BIGINT REFERENCES users(id) ON DELETE CASCADE,
     status VARCHAR(30) NOT NULL DEFAULT 'PENDING' CHECK (status IN ('PENDING', 'CONFIRMED', 'REJECTED')),
-    UNIQUE (event_id, requester_id)
+    CONSTRAINT pk_request PRIMARY KEY (id),
+    CONSTRAINT uq_requester_event UNIQUE (requester_id, event_id),
+    FOREIGN KEY (requester_id) REFERENCES users (id) ON DELETE CASCADE,
+    FOREIGN KEY (event_id) REFERENCES events (id) ON DELETE CASCADE
 );
-
-CREATE INDEX idx_requests_event_id ON participation_requests(event_id);
-CREATE INDEX idx_requests_requester_id ON participation_requests(requester_id);
-CREATE INDEX idx_requests_status ON participation_requests(status);
 
 CREATE TABLE IF NOT EXISTS compilations (
     id BIGSERIAL PRIMARY KEY,
     title VARCHAR(50) NOT NULL UNIQUE CHECK (title <> ''),
-    pinned BOOLEAN NOT NULL DEFAULT FALSE
+    pinned BOOLEAN NOT NULL DEFAULT FALSE,
+    CONSTRAINT pk_compilations PRIMARY KEY (id),
+    CONSTRAINT uq_compilations_title UNIQUE (title)
 );
-
-CREATE INDEX idx_compilations_pinned ON compilations(pinned);
 
 CREATE TABLE IF NOT EXISTS event_compilation (
     event_id BIGINT REFERENCES events(id) ON DELETE CASCADE,
     compilation_id BIGINT REFERENCES compilations(id) ON DELETE CASCADE,
-    PRIMARY KEY (event_id, compilation_id)
+    PRIMARY KEY (compilation_id, event_id)
 );
-
-CREATE INDEX idx_event_compilation_event_id ON event_compilation(event_id);
-CREATE INDEX idx_event_compilation_compilation_id ON event_compilation(compilation_id);
