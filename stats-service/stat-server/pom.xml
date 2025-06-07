@@ -69,6 +69,10 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>3.1.5</version>
+                <configuration>
+                    <mainClass>ru.practicum.explore</mainClass>
+                    <layers>JAR</layers>
+                </configuration>
                 <executions>
                     <execution>
                         <goals>
