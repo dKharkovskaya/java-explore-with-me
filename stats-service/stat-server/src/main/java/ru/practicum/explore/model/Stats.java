@@ -28,4 +28,5 @@ public class Stats {
 
     @Column(name = "time_stamp", nullable = false)
     private LocalDateTime timestamp;
+
 }
