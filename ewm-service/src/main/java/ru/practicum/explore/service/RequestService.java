@@ -9,8 +9,11 @@ import java.util.List;
 public interface RequestService {
 
     ParticipationRequestDto createRequest(Long userId, Long eventId);
+
     List<ParticipationRequestDto> getUserRequests(Long userId);
+
     ParticipationRequestDto cancelRequest(Long userId, Long requestId);
+
     EventRequestStatusUpdateResult updateRequestsStatus(
             Long userId, Long eventId, EventRequestStatusUpdateRequest dto);
 }

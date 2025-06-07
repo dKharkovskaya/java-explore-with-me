@@ -18,6 +18,7 @@ public class CategoryMapper {
                 .name(category.getName())
                 .build();
     }
+
     public static void updateCategoryFromDto(Category category, CategoryDto categoryDto) {
         if (categoryDto.getName() != null && !categoryDto.getName().isBlank()) {
             category.setName(categoryDto.getName());
