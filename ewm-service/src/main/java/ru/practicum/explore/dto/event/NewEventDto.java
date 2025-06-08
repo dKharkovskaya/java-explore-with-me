@@ -1,5 +1,6 @@
 package ru.practicum.explore.dto.event;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.format.annotation.DateTimeFormat;
 import ru.practicum.explore.dto.Location;
 
@@ -7,37 +8,45 @@ import java.time.LocalDateTime;
 
 import lombok.*;
 
-import javax.validation.constraints.Future;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.*;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Builder
 public class NewEventDto {
-    @NotBlank(message = "Аннотация не может быть пустой")
-    @Size(min = 20, max = 2000)
+    @Size(min = 20, message = "Минимальная длина поля 20 символов")
+    @Size(max = 2000, message = "Максимальная длина поля 2000 символов")
+    @NotNull(message = "Поле не может быть неопределенным")
+    @NotEmpty(message = "Поле не может быть пустым")
+    @NotBlank(message = "Поле не может состоять из пробелов")
     private String annotation;
 
-    @NotNull(message = "Категория обязательна")
-    private Long category;
-
-    @NotBlank(message = "Описание не может быть пустым")
-    @Size(min = 20, message = "Описание должно быть не менее 20 символов")
+    @Size(min = 20, message = "Минимальная длина поля 20 символов")
+    @Size(max = 7000, message = "Максимальная длина поля 7000 символов")
+    @NotNull(message = "Поле не может быть неопределенным")
+    @NotEmpty(message = "Поле не может быть пустым")
+    @NotBlank(message = "Поле не может состоять из пробелов")
     private String description;
 
-    @Future(message = "Дата события должна быть в будущем")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime eventDate;
-
-    @NotNull(message = "Местоположение обязательно")
-    private Location location;
-
-    private Boolean paid;
-
-    private Integer participantLimit;
-
-    private Boolean requestModeration;
+    @Size(min = 3, message = "Минимальная длина поля 3 символов")
+    @Size(max = 120, message = "Максимальная длина поля 120 символов")
+    @NotNull(message = "Поле не может быть неопределенным")
+    @NotEmpty(message = "Поле не может быть пустым")
+    @NotBlank(message = "Поле не может состоять из пробелов")
     private String title;
+
+    @NotNull(message = "Поле не может быть неопределенным")
+    private String eventDate;
+
+    @NotNull(message = "Поле не может быть неопределенным")
+    private Long category;
+
+    private Boolean paid = false;
+
+    @PositiveOrZero
+    private Integer participantLimit = 0;
+
+    private Boolean requestModeration = true;
+
+    @JsonFormat(shape = JsonFormat.Shape.OBJECT)
+    private Location location;
 }

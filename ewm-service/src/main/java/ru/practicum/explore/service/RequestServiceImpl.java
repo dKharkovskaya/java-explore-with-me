@@ -38,7 +38,7 @@ public class RequestServiceImpl implements RequestService {
                 .orElseThrow(() -> new NotFoundException("Event not found"));
 
         // Проверка: нельзя подать заявку на своё же событие
-        if (event.getInitiator().getId().equals(userId)) {
+        if (event.getInitiator().equals(userId)) {
             throw new ConflictException("Initiator cannot participate in own event");
         }
 

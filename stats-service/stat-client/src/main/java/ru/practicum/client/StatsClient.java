@@ -4,16 +4,22 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import ru.practicum.explore.StatsDtoInput;
 import ru.practicum.explore.StatsDtoOutput;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
-@Component
+import static org.springframework.http.RequestEntity.post;
+
+@Service
 public class StatsClient {
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     private final RestTemplate restTemplate;
 
@@ -47,5 +53,15 @@ public class StatsClient {
         );
 
         return Arrays.asList(response.getBody());
+    }
+
+    public ResponseEntity<Object> save(String app, String uri, String ip) {
+        Map<String, Object> parameters = Map.of(
+                "app", app,
+                "uri", uri,
+                "ip", ip,
+                "timestamp", LocalDateTime.now().format(formatter)
+        );
+        return post("/hit", parameters);
     }
 }

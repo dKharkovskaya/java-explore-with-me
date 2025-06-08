@@ -9,8 +9,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "events")
-@Getter
-@Setter
+@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -59,16 +58,16 @@ public class Event {
 
     @ManyToOne
     @JoinColumn(name = "initiator_id", nullable = false)
-    private User initiator;
+    private Long initiator;
 
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
-    private Category category;
+    private Long category;
 
     @Transient
     @Accessors(chain = true)
-    private Long views;
+    private Integer views;
 
     @Transient
-    private Long confirmedRequests;
+    private Integer confirmedRequests;
 }
