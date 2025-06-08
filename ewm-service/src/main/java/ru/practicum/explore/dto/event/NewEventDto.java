@@ -1,10 +1,8 @@
 package ru.practicum.explore.dto.event;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import org.springframework.format.annotation.DateTimeFormat;
 import ru.practicum.explore.dto.Location;
 
-import java.time.LocalDateTime;
 
 import lombok.*;
 

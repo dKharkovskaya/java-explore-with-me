@@ -15,7 +15,6 @@ import ru.practicum.explore.dto.request.EventRequestStatusUpdateRequest;
 import ru.practicum.explore.dto.request.EventRequestStatusUpdateResult;
 import ru.practicum.explore.dto.user.UserShortDto;
 import ru.practicum.explore.enums.RequestState;
-import ru.practicum.explore.enums.Sorting;
 import ru.practicum.explore.enums.StateAction;
 import ru.practicum.explore.error.exception.BadRequestException;
 import ru.practicum.explore.error.exception.ConflictException;
@@ -34,9 +33,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-
-import static ru.practicum.explore.enums.Sorting.EVENT_DATE;
-import static ru.practicum.explore.enums.Sorting.VIEWS;
 
 @Service
 @RequiredArgsConstructor

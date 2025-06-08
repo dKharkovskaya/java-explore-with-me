@@ -5,16 +5,9 @@ import ru.practicum.explore.dto.category.CategoryDto;
 import ru.practicum.explore.dto.event.*;
 import ru.practicum.explore.dto.Location;
 import ru.practicum.explore.dto.user.UserShortDto;
-import ru.practicum.explore.enums.RequestState;
 import ru.practicum.explore.model.Event;
-import ru.practicum.explore.model.User;
-import ru.practicum.explore.model.Category;
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @UtilityClass
 public class EventMapper {
