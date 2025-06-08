@@ -8,6 +8,7 @@ import ru.practicum.explore.dto.event.NewEventDto;
 import ru.practicum.explore.dto.event.UpdateEventUserRequest;
 import ru.practicum.explore.service.EventService;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -18,7 +19,7 @@ public class PrivateEventController {
     private final EventService eventService;
 
     @PostMapping
-    public EventFullDto addEvent(@PathVariable Long userId, @RequestBody NewEventDto dto) {
+    public EventFullDto addEvent(@PathVariable Long userId, @Valid @RequestBody NewEventDto dto) {
         return eventService.addEvent(userId, dto);
     }
 

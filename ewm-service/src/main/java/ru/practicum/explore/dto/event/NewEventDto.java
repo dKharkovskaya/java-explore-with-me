@@ -1,5 +1,6 @@
 package ru.practicum.explore.dto.event;
 
+import org.springframework.format.annotation.DateTimeFormat;
 import ru.practicum.explore.dto.Location;
 
 import java.time.LocalDateTime;
@@ -15,21 +16,22 @@ import javax.validation.constraints.Size;
 @NoArgsConstructor
 @AllArgsConstructor
 public class NewEventDto {
-    @NotBlank
+    @NotBlank(message = "Аннотация не может быть пустой")
     @Size(min = 20, max = 2000)
     private String annotation;
 
-    @NotNull
+    @NotNull(message = "Категория обязательна")
     private Long category;
 
-    @NotBlank
-    @Size(min = 20, max = 7000)
+    @NotBlank(message = "Описание не может быть пустым")
+    @Size(min = 20, message = "Описание должно быть не менее 20 символов")
     private String description;
 
-    @Future(message = "Event date must be in the future")
+    @Future(message = "Дата события должна быть в будущем")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime eventDate;
 
-    @NotNull
+    @NotNull(message = "Местоположение обязательно")
     private Location location;
 
     private Boolean paid;
@@ -38,7 +40,7 @@ public class NewEventDto {
 
     private Boolean requestModeration;
 
-    @NotBlank
-    @Size(min = 3, max = 120)
+    @NotBlank(message = "Заголовок не может быть пустым")
+    @Size(min = 3, max = 120, message = "Заголовок должен быть длиной от 3 до 120 символов")
     private String title;
 }
