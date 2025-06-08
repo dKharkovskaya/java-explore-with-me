@@ -13,7 +13,6 @@ import ru.practicum.explore.dto.request.EventRequestStatusUpdateResult;
 import ru.practicum.explore.service.EventService;
 
 import javax.validation.Valid;
-import java.util.Collection;
 import java.util.List;
 
 @Slf4j
@@ -38,7 +37,7 @@ public class PrivateEventController {
     }
 
     @GetMapping("/{userId}/events/{eventId}")
-    public EventFullDto getUserEventById(@PathVariable("userId") Long userId,  @PathVariable("eventId") Long eventId) {
+    public EventFullDto getUserEventById(@PathVariable("userId") Long userId, @PathVariable("eventId") Long eventId) {
         return eventService.getUserEventById(userId, eventId);
     }
 
