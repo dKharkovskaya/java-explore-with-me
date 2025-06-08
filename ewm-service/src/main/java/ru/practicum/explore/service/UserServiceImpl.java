@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.explore.dto.user.NewUserRequest;
 import ru.practicum.explore.dto.user.UserDto;
-import ru.practicum.explore.exception.ConflictException;
 import ru.practicum.explore.exception.NotFoundException;
 import ru.practicum.explore.mapper.UserMapper;
 import ru.practicum.explore.model.User;
