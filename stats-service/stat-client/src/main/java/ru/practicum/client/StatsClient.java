@@ -19,9 +19,7 @@ public class StatsClient {
     private final RestTemplate restTemplate;
 
     public StatsClient(@Value("${stats.service.url}") String serviceUrl, RestTemplateBuilder builder) {
-        this.restTemplate = builder
-                .uriTemplateHandler(new DefaultUriBuilderFactory(serviceUrl))
-                .build();
+        this.restTemplate = builder.rootUri(serviceUrl).build();
     }
 
     // Отправляет информацию о посещении
