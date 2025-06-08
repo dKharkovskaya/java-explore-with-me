@@ -11,7 +11,6 @@ import ru.practicum.explore.exception.NotFoundException;
 import ru.practicum.explore.mapper.UserMapper;
 import ru.practicum.explore.model.User;
 import ru.practicum.explore.repository.UserRepository;
-import ru.practicum.explore.service.UserService;
 
 import java.util.List;
 import java.util.stream.Collectors;

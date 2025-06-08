@@ -11,7 +11,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("/admin/users")
+@RequestMapping(path = "/admin/users")
 @RequiredArgsConstructor
 public class AdminUserController {
 
