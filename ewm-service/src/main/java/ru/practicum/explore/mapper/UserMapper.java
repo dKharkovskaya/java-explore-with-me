@@ -1,14 +1,12 @@
 package ru.practicum.explore.mapper;
 
-
-import ru.practicum.explore.dto.user.NewUserRequest;
 import ru.practicum.explore.dto.user.UserDto;
 import ru.practicum.explore.dto.user.UserShortDto;
 import ru.practicum.explore.model.User;
 
 public class UserMapper {
 
-    public static User toUser(NewUserRequest dto) {
+    public static User toUser(UserDto dto) {
         return User.builder()
                 .name(dto.getName())
                 .email(dto.getEmail())

@@ -6,7 +6,7 @@ import ru.practicum.explore.dto.user.NewUserRequest;
 import java.util.List;
 
 public interface UserService {
-    UserDto addUser(NewUserRequest dto);
+    UserDto addUser(UserDto dto);
 
     void deleteUser(Long userId);
 
