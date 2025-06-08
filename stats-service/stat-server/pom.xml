@@ -70,7 +70,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>3.4.1</version>
                 <configuration>
-                    <mainClass>ru.practicum.explore.StatServer</mainClass>
+                    <mainClass>ru.practicum.explore.StatServerApplication</mainClass>
                 </configuration>
                 <executions>
                     <execution>
