@@ -4,7 +4,7 @@ server:
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://ewm-db:5432/ewm-db
+    url: jdbc:postgresql://localhost:5432/ewm-db
     username: sa
     password: 12345
 
@@ -17,6 +17,6 @@ spring:
       use-new-id-generator-mappings: false
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
-stats:
-  service:
-    url: http://stat-server:8080
+stats-server:
+  name: ewm-service
+  url: http://stats-server-container:9090

@@ -7,9 +7,9 @@ import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
 @ComponentScan(basePackages = {"ru.practicum.explore", "ru.practicum.client"})
-public class EwmServiceApp {
+public class EwmService {
 
     public static void main(String[] args) {
-        SpringApplication.run(EwmServiceApp.class, args);
+        SpringApplication.run(EwmService.class, args);
     }
 }
