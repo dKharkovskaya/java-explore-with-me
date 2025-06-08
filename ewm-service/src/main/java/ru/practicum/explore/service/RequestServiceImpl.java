@@ -42,11 +42,6 @@ public class RequestServiceImpl implements RequestService {
             throw new ConflictException("Initiator cannot participate in own event");
         }
 
-        // Проверка: событие должно быть опубликовано
-        if (!"PUBLISHED".equals(event.getState())) {
-            throw new ConflictException("Cannot participate in unpublished event");
-        }
-
         // Проверка: не было ли уже такой заявки
         if (requestRepository.existsByRequesterIdAndEventId(userId, eventId)) {
             throw new ConflictException("Request already exists");
