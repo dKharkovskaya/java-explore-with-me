@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.explore.dto.user.NewUserRequest;
 import ru.practicum.explore.dto.user.UserDto;
+import ru.practicum.explore.exception.ConflictException;
 import ru.practicum.explore.exception.NotFoundException;
 import ru.practicum.explore.mapper.UserMapper;
 import ru.practicum.explore.model.User;
@@ -23,9 +24,16 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto addUser(NewUserRequest dto) {
-        /*   if (userRepository.existsByEmail(dto.getEmail())) {
-            throw new ConflictException("Email is already taken");
-        }*/
+        if (dto == null) {
+            throw new IllegalArgumentException("DTO не может быть null");
+        }
+        if (dto.getEmail() == null || dto.getEmail().isBlank()) {
+            throw new IllegalArgumentException("Email обязателен");
+        }
+
+        if (userRepository.existsByEmail(dto.getEmail())) {
+            throw new ConflictException("Email already exists");
+        }
 
         User user = UserMapper.toUser(dto);
         return UserMapper.toDto(userRepository.save(user));
