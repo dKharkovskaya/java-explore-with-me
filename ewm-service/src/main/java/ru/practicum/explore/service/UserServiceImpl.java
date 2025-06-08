@@ -24,9 +24,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto addUser(NewUserRequest dto) {
-        if (userRepository.existsByEmail(dto.getEmail())) {
+        /*   if (userRepository.existsByEmail(dto.getEmail())) {
             throw new ConflictException("Email is already taken");
-        }
+        }*/
 
         User user = UserMapper.toUser(dto);
         return UserMapper.toDto(userRepository.save(user));
