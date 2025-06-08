@@ -61,6 +61,6 @@ public class StatsClient {
                 "ip", ip,
                 "timestamp", LocalDateTime.now().format(formatter)
         );
-        return post("/hit", parameters);
+        return (ResponseEntity<Object>) post("/hit", parameters);
     }
 }
