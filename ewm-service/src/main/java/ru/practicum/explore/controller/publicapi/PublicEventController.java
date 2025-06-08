@@ -2,7 +2,6 @@ package ru.practicum.explore.controller.publicapi;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.client.StatsClient;
 import ru.practicum.explore.dto.event.EventFullDto;
@@ -38,7 +37,6 @@ public class PublicEventController {
         if (categories != null && categories.size() == 1 && categories.getFirst() == 0) {
             categories = null;
         }
-        ResponseEntity<Object> resp = statisticsClient.save("ewm-main-service", request.getRequestURI(), request.getRemoteAddr());
         return eventService.getPublicEvents(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size, request.getRequestURI(), request);
     }
 

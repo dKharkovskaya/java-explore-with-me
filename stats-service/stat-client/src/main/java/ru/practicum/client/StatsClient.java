@@ -12,9 +12,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-
-import static org.springframework.http.RequestEntity.post;
 
 @Service
 public class StatsClient {
@@ -52,15 +49,5 @@ public class StatsClient {
         );
 
         return Arrays.asList(response.getBody());
-    }
-
-    public ResponseEntity<Object> save(String app, String uri, String ip) {
-        Map<String, Object> parameters = Map.of(
-                "app", app,
-                "uri", uri,
-                "ip", ip,
-                "timestamp", LocalDateTime.now().format(formatter)
-        );
-        return (ResponseEntity<Object>) post("/hit", parameters);
     }
 }
