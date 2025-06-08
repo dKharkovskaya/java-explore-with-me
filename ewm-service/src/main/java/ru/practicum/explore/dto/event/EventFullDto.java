@@ -9,24 +9,23 @@ import java.time.LocalDateTime;
 import lombok.*;
 
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class EventFullDto {
+    private Long id;
+    private String title;
     private String annotation;
     private CategoryDto category;
-    private Long confirmedRequests;
-    private LocalDateTime createdOn;
-    private String description;
-    private LocalDateTime eventDate;
-    private Long id;
-    private UserShortDto initiator;
-    private Location location;
     private Boolean paid;
+    private LocalDateTime eventDate;
+    private UserShortDto initiator;
+    private String description;
     private Integer participantLimit;
-    private LocalDateTime publishedOn;
-    private Boolean requestModeration;
     private String state;
-    private String title;
+    private LocalDateTime createdOn;
+    private Location location;
+    private Boolean requestModeration;
     private Long views;
+    private Integer confirmedRequests;
 }

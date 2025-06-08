@@ -2,6 +2,7 @@ package ru.practicum.explore.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+import ru.practicum.explore.enums.RequestState;
 import ru.practicum.explore.model.Request;
 
 import java.util.List;
@@ -25,4 +26,16 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
      * Подсчитывает количество подтвержденных заявок на участие в событии
      */
     int countByEventIdAndStatus(Long eventId, String status);
+
+    List<Request> findAllByRequester(Long id);
+
+    List<Request> findByIdIn(List<Long> ids);
+
+    List<Request> findByEventAndStatus(Long eventId, RequestState status);
+
+    List<Request> findByEvent(Long eventId);
+
+    int countByEventAndStatus(Long eventId, RequestState status);
+
+    boolean existsByEventAndRequester(Long eventId, Long requesterId);
 }

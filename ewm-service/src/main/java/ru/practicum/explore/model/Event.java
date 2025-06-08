@@ -2,6 +2,7 @@ package ru.practicum.explore.model;
 
 import lombok.*;
 import lombok.experimental.Accessors;
+import ru.practicum.explore.enums.RequestState;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -53,7 +54,8 @@ public class Event {
     private String title;
 
     @Column(name = "state", nullable = false)
-    private String state;
+    @Enumerated(EnumType.STRING)
+    private RequestState state;
 
     @ManyToOne
     @JoinColumn(name = "initiator_id", nullable = false)

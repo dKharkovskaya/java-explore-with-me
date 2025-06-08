@@ -5,11 +5,15 @@ import ru.practicum.explore.dto.category.CategoryDto;
 import ru.practicum.explore.dto.event.*;
 import ru.practicum.explore.dto.Location;
 import ru.practicum.explore.dto.user.UserShortDto;
+import ru.practicum.explore.enums.RequestState;
 import ru.practicum.explore.model.Event;
 import ru.practicum.explore.model.User;
 import ru.practicum.explore.model.Category;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 public class EventMapper {
@@ -25,7 +29,7 @@ public class EventMapper {
                 .participantLimit(dto.getParticipantLimit())
                 .requestModeration(dto.getRequestModeration())
                 .title(dto.getTitle())
-                .state("PENDING")
+                .state(RequestState.PENDING)
                 .initiator(user)
                 .category(category)
                 .build();
@@ -37,16 +41,14 @@ public class EventMapper {
                 .description(event.getDescription())
                 .eventDate(event.getEventDate())
                 .createdOn(event.getCreatedOn())
-                .publishedOn(event.getPublishedOn())
                 .location(new Location(event.getLocationLat(), event.getLocationLon()))
                 .paid(event.getPaid())
                 .participantLimit(event.getParticipantLimit())
                 .requestModeration(event.getRequestModeration())
                 .title(event.getTitle())
                 .views(0L) // будет заполняться отдельно из статистики
-                .confirmedRequests(0L)
                 .id(event.getId())
-                .state(event.getState())
+                .state(event.getState().toString())
                 .initiator(UserShortDto.builder()
                         .id(event.getInitiator().getId())
                         .name(event.getInitiator().getName())
@@ -65,17 +67,18 @@ public class EventMapper {
                 .id(event.getId())
                 .paid(event.getPaid())
                 .title(event.getTitle())
-                .views(0L)
-                .confirmedRequests(0L)
                 .initiator(UserShortDto.builder()
                         .id(event.getInitiator().getId())
                         .name(event.getInitiator().getName())
                         .build())
-                .category(CategoryDto.builder()
-                        .id(event.getCategory().getId())
-                        .name(event.getCategory().getName())
-                        .build())
                 .build();
+    }
+
+    // Метод для списка событий
+    public static List<EventShortDto> toShortDtos(Set<Event> events) {
+        return events.stream()
+                .map(EventMapper::toShortDto)
+                .collect(Collectors.toList());
     }
 
     public static void updateEventFromUserDto(Event event, UpdateEventUserRequest dto) {
@@ -105,10 +108,24 @@ public class EventMapper {
         if (dto.getRequestModeration() != null) event.setRequestModeration(dto.getRequestModeration());
         if (dto.getTitle() != null) event.setTitle(dto.getTitle());
         if (dto.getStateAction() != null && dto.getStateAction().equals("PUBLISH_EVENT")) {
-            event.setState("PUBLISHED");
+            event.setState(RequestState.PENDING);
             event.setPublishedOn(LocalDateTime.now());
         } else if (dto.getStateAction() != null && dto.getStateAction().equals("REJECT_EVENT")) {
-            event.setState("CANCELED");
+            event.setState(RequestState.CANCELED);
         }
+    }
+
+    public static EventShortDto toShortDto(Event event) {
+        return EventShortDto.builder()
+                .id(event.getId())
+                .title(event.getTitle())
+                .annotation(event.getAnnotation())
+                .paid(event.getPaid())
+                .eventDate(event.getEventDate())
+                .initiator(UserShortDto.builder()
+                        .id(event.getInitiator().getId())
+                        .name(event.getInitiator().getName())
+                        .build())
+                .build();
     }
 }

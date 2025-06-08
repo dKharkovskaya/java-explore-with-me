@@ -1,6 +1,8 @@
 package ru.practicum.explore.service;
 
 import ru.practicum.explore.dto.event.*;
+import ru.practicum.explore.dto.request.EventRequestStatusUpdateRequest;
+import ru.practicum.explore.dto.request.EventRequestStatusUpdateResult;
 import ru.practicum.explore.model.Event;
 
 import java.time.LocalDateTime;
@@ -11,7 +13,7 @@ public interface EventService {
     // Admin API
     EventFullDto updateEventByAdmin(Long eventId, UpdateEventAdminRequest dto);
 
-    List<EventFullDto> getEvents(List<Long> users, List<String> states, List<Long> categories,
+    List<EventFullDto> getAdminEvents(List<Long> users, List<String> states, List<Long> categories,
                                  LocalDateTime rangeStart, LocalDateTime rangeEnd, int from, int size);
 
     // Private API
@@ -40,4 +42,6 @@ public interface EventService {
     }
 
     Event getEventById(Long id);
+
+    EventRequestStatusUpdateResult updateEventRequestsPrivate(Long userId, Long eventId, EventRequestStatusUpdateRequest entity);
 }

@@ -1,20 +1,25 @@
 package ru.practicum.explore.dto.compilation;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.Set;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Builder
 public class NewCompilationDto {
+    @Size(min = 1, message = "Минимальная длина поля 1 символов")
+    @Size(max = 50, message = "Максимальная длина поля 50 символов")
+    @NotBlank
     @NotEmpty
-    @Size(min = 1, max = 50)
+    @NotNull
     private String title;
-    private Boolean pinned;
+    private Boolean pinned = false;
     private Set<Long> events;
 }

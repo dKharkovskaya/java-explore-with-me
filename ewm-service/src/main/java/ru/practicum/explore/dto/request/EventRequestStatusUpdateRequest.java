@@ -9,6 +9,7 @@ import javax.validation.constraints.NotNull;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class EventRequestStatusUpdateRequest {
     @NotNull
     private List<Long> requestIds;
