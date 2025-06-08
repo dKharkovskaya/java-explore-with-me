@@ -19,7 +19,7 @@ public class AdminUserController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public UserDto addUser(@Valid @RequestBody UserDto dto) {
+    public UserDto addUser(@Valid @RequestBody NewUserRequest dto) {
         return userService.addUser(dto);
     }
 
