@@ -17,6 +17,6 @@ spring:
       use-new-id-generator-mappings: false
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
-stats-server:
-  name: ewm-service
-  url: http://stats-server-container:9090
+app:
+  client:
+    url: http://stats-server-container:9090
