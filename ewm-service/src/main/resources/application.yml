@@ -17,5 +17,6 @@ spring:
       use-new-id-generator-mappings: false
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
-client:
-  url: http://stats-server:9090
+stats:
+  service:
+    url: http://stat-server:8080
