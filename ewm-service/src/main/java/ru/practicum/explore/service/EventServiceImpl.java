@@ -8,7 +8,8 @@ import ru.practicum.client.StatsClient;
 import ru.practicum.explore.StatsDtoInput;
 import ru.practicum.explore.StatsDtoOutput;
 import ru.practicum.explore.dto.event.*;
-import ru.practicum.explore.exception.NotFoundException;
+import ru.practicum.explore.error.exception.ConflictException;
+import ru.practicum.explore.error.exception.NotFoundException;
 import ru.practicum.explore.mapper.EventMapper;
 import ru.practicum.explore.model.Category;
 import ru.practicum.explore.model.Event;
@@ -26,7 +27,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Transactional
 public class EventServiceImpl implements EventService {
 
     private final EventRepository eventRepository;
@@ -56,13 +57,35 @@ public class EventServiceImpl implements EventService {
         return EventMapper.toEventFullDto(event);
     }
 
-    @Transactional
     @Override
     public EventFullDto updateEventByUser(Long userId, Long eventId, UpdateEventUserRequest dto) {
-        Event event = eventRepository.findByIdAndInitiatorId(eventId, userId).orElseThrow(() -> new NotFoundException("Event not found or not owned by user"));
+        Event event = getEventIfExists(eventId);
 
-        EventMapper.updateEventFromUserDto(event, dto);
-        return EventMapper.toEventFullDto(eventRepository.save(event));
+        if (!event.getInitiator().getId().equals(userId)) {
+            throw new NotFoundException("Event not found or user is not the initiator");
+        }
+
+        if (!"PENDING".equals(event.getState()) && !"CANCELED".equals(event.getState())) {
+            throw new ConflictException("Only pending or canceled events can be changed");
+        }
+
+        // Обновляем поля
+        if (dto.getAnnotation() != null) event.setAnnotation(dto.getAnnotation());
+        if (dto.getDescription() != null) event.setDescription(dto.getDescription());
+        if (dto.getEventDate() != null) event.setEventDate(dto.getEventDate());
+        if (dto.getCategory() != null) event.setCategory(getCategoryIfExists(dto.getCategory()));
+        if (dto.getPaid() != null) event.setPaid(dto.getPaid());
+        if (dto.getParticipantLimit() != null) event.setParticipantLimit(dto.getParticipantLimit());
+        if (dto.getRequestModeration() != null) event.setRequestModeration(dto.getRequestModeration());
+
+        // Сохраняем
+        Event updated = eventRepository.save(event);
+        EventFullDto fullDto = EventMapper.toEventFullDto(updated);
+
+        // Получаем количество просмотров
+        //fullDto.setViews(statsClient.getViews(fullDto.getId()));
+
+        return fullDto;
     }
 
     @Transactional
@@ -153,5 +176,15 @@ public class EventServiceImpl implements EventService {
     private Long getViews(Long eventId) {
         List<StatsDtoOutput> stats = statsClient.getStats(LocalDateTime.now().minusYears(10), LocalDateTime.now().plusYears(10), List.of("/events/" + eventId), true);
         return stats.isEmpty() ? 0 : stats.get(0).getHits();
+    }
+
+    private Event getEventIfExists(Long eventId) {
+        return eventRepository.findById(eventId)
+                .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " was not found"));
+    }
+
+    private Category getCategoryIfExists(Long eventId) {
+        return categoryRepository.findById(eventId)
+                .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " was not found"));
     }
 }

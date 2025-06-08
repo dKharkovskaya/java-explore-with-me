@@ -6,8 +6,8 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.explore.dto.request.EventRequestStatusUpdateRequest;
 import ru.practicum.explore.dto.request.EventRequestStatusUpdateResult;
 import ru.practicum.explore.dto.request.ParticipationRequestDto;
-import ru.practicum.explore.exception.ConflictException;
-import ru.practicum.explore.exception.NotFoundException;
+import ru.practicum.explore.error.exception.ConflictException;
+import ru.practicum.explore.error.exception.NotFoundException;
 import ru.practicum.explore.mapper.RequestMapper;
 import ru.practicum.explore.model.Event;
 import ru.practicum.explore.model.Request;
@@ -31,8 +31,11 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public ParticipationRequestDto createRequest(Long userId, Long eventId) {
-        User requester = getUserIfExists(userId);
-        Event event = getEventIfExists(eventId);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new NotFoundException("Event not found"));
 
         // Проверка: нельзя подать заявку на своё же событие
         if (event.getInitiator().getId().equals(userId)) {
@@ -55,11 +58,10 @@ public class RequestServiceImpl implements RequestService {
             throw new ConflictException("Participant limit reached");
         }
 
-        // Создаем новую заявку
         Request request = Request.builder()
-                .created(LocalDateTime.now())
+                .requester(user)
                 .event(event)
-                .requester(requester)
+                .created(LocalDateTime.now())
                 .status(event.getRequestModeration() ? "PENDING" : "CONFIRMED")
                 .build();
 

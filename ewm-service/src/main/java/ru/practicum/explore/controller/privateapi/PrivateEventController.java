@@ -12,8 +12,8 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("/users/{userId}/events")
 @RequiredArgsConstructor
+@RequestMapping("/users/{userId}/events")
 public class PrivateEventController {
 
     private final EventService eventService;
@@ -37,7 +37,7 @@ public class PrivateEventController {
 
     @PatchMapping("/{eventId}")
     public EventFullDto updateEvent(@PathVariable Long userId, @PathVariable Long eventId,
-                                    @RequestBody UpdateEventUserRequest dto) {
+                                    @RequestBody @Valid UpdateEventUserRequest dto) {
         return eventService.updateEventByUser(userId, eventId, dto);
     }
 }

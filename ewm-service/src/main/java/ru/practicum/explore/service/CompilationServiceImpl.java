@@ -7,13 +7,12 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.explore.dto.compilation.CompilationDto;
 import ru.practicum.explore.dto.compilation.NewCompilationDto;
 import ru.practicum.explore.dto.compilation.UpdateCompilationRequest;
-import ru.practicum.explore.exception.NotFoundException;
+import ru.practicum.explore.error.exception.NotFoundException;
 import ru.practicum.explore.mapper.CompilationMapper;
 import ru.practicum.explore.model.Compilation;
 import ru.practicum.explore.model.Event;
 import ru.practicum.explore.repository.CompilationRepository;
 import ru.practicum.explore.repository.EventRepository;
-import ru.practicum.explore.service.CompilationService;
 
 import java.util.HashSet;
 import java.util.List;
