@@ -5,7 +5,6 @@ import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.practicum.explore.StatsDtoInput;
 import ru.practicum.explore.StatsDtoOutput;
 
