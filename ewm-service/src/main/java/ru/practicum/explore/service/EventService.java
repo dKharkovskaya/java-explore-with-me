@@ -14,7 +14,7 @@ public interface EventService {
     EventFullDto updateEventByAdmin(Long eventId, UpdateEventAdminRequest dto);
 
     List<EventFullDto> getAdminEvents(List<Long> users, List<String> states, List<Long> categories,
-                                 LocalDateTime rangeStart, LocalDateTime rangeEnd, int from, int size);
+                                      LocalDateTime rangeStart, LocalDateTime rangeEnd, int from, int size);
 
     // Private API
     EventFullDto addEvent(Long userId, NewEventDto dto);
@@ -35,10 +35,7 @@ public interface EventService {
     // Вспомогательные методы
     default Event getEventByIdAndCheckPublished(Long id) {
         Event event = getEventById(id);
-        if (!"PUBLISHED".equals(event.getState())) {
-            throw new RuntimeException("Event is not published");
-        }
-        return event;
+        throw new RuntimeException("Event is not published");
     }
 
     Event getEventById(Long id);
