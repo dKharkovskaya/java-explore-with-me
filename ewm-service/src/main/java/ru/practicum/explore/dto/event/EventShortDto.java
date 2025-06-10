@@ -1,6 +1,5 @@
 package ru.practicum.explore.dto.event;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import ru.practicum.explore.dto.category.CategoryDto;
 import ru.practicum.explore.dto.user.UserShortDto;
 

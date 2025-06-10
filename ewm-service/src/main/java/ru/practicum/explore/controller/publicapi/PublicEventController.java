@@ -1,22 +1,16 @@
 package ru.practicum.explore.controller.publicapi;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.client.StatsClient;
-import ru.practicum.explore.StatsDtoInput;
-import ru.practicum.explore.StatsDtoOutput;
 import ru.practicum.explore.dto.event.EventFullDto;
 import ru.practicum.explore.service.EventService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Positive;
-import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/events")
@@ -58,6 +52,7 @@ public class PublicEventController {
         boolean uniqueRequest = hitsAfter > hitsBefore;
         return eventService.getPublicEventById(eventId, request.getRequestURI(), request);
     }
+
     private long getEndpointUniqueHits(String uri) {
         long hits = 0;
         /*Optional<StatsDtoOutput> viewStatsDtoOptional =

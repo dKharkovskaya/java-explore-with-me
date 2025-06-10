@@ -4,9 +4,6 @@ import lombok.experimental.UtilityClass;
 import ru.practicum.explore.dto.compilation.CompilationDto;
 import ru.practicum.explore.dto.compilation.NewCompilationDto;
 import ru.practicum.explore.model.Compilation;
-import ru.practicum.explore.model.Event;
-
-import java.util.Set;
 
 
 @UtilityClass

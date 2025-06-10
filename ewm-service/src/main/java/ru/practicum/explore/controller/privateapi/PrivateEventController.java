@@ -37,9 +37,9 @@ public class PrivateEventController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<EventShortDto> getUserEvents( @PathVariable @Positive Long userId,
-                                              @RequestParam(name = "from", required = false, defaultValue = "0") @PositiveOrZero Integer from,
-                                              @RequestParam(name = "size", required = false, defaultValue = "10") @Positive Integer size) {
+    public List<EventShortDto> getUserEvents(@PathVariable @Positive Long userId,
+                                             @RequestParam(name = "from", required = false, defaultValue = "0") @PositiveOrZero Integer from,
+                                             @RequestParam(name = "size", required = false, defaultValue = "10") @Positive Integer size) {
         return eventService.getUserEvents(userId, from, size);
     }
 
@@ -54,14 +54,14 @@ public class PrivateEventController {
     @ResponseStatus(HttpStatus.OK)
     public EventFullDto updateEvent(@PathVariable @Positive Long userId,
                                     @PathVariable("event-id") @Positive Long eventId,
-                                    @RequestBody  @Valid UpdateEventUserRequest updateEventUserRequest) {
+                                    @RequestBody @Valid UpdateEventUserRequest updateEventUserRequest) {
         return eventService.updateEventByUser(userId, eventId, updateEventUserRequest);
     }
 
     @PatchMapping("/{event-id}/requests")
     public EventRequestStatusUpdateResult updateEventRequestsPrivate(@PathVariable @Positive Long userId,
                                                                      @PathVariable("event-id") @Positive Long eventId,
-                                                                     @RequestBody  @Valid EventRequestStatusUpdateRequest eventRequestStatusUpdateRequest) {
+                                                                     @RequestBody @Valid EventRequestStatusUpdateRequest eventRequestStatusUpdateRequest) {
         return eventService.updateEventRequestsPrivate(userId, eventId, eventRequestStatusUpdateRequest);
     }
 

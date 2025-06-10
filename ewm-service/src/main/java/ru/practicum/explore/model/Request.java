@@ -3,7 +3,6 @@ package ru.practicum.explore.model;
 import lombok.*;
 
 import javax.persistence.*;
-import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Entity
@@ -20,7 +19,7 @@ public class Request {
     private Long id;
 
     @Column(name = "created", nullable = false)
-    private Instant created;
+    private LocalDateTime created;
 
     @Column(name = "status", nullable = false)
     private String status; // PENDING, CONFIRMED, REJECTED

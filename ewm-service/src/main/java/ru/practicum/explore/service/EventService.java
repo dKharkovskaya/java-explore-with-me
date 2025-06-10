@@ -4,9 +4,7 @@ import ru.practicum.explore.dto.event.*;
 import ru.practicum.explore.dto.request.EventRequestStatusUpdateRequest;
 import ru.practicum.explore.dto.request.EventRequestStatusUpdateResult;
 import ru.practicum.explore.dto.request.ParticipationRequestDto;
-import ru.practicum.explore.model.Event;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 public interface EventService {
