@@ -6,7 +6,6 @@ import ru.practicum.explore.dto.LocationDto;
 import java.time.LocalDateTime;
 
 import lombok.*;
-import ru.practicum.explore.enums.StateActionPrivate;
 
 import javax.validation.constraints.Future;
 import javax.validation.constraints.PositiveOrZero;

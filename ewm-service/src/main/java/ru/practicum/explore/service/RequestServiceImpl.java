@@ -15,7 +15,6 @@ import ru.practicum.explore.repository.EventRepository;
 import ru.practicum.explore.repository.RequestRepository;
 import ru.practicum.explore.repository.UserRepository;
 
-import java.time.Instant;
 import java.util.*;
 
 @Service

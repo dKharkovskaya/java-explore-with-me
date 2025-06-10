@@ -7,8 +7,6 @@ import ru.practicum.explore.dto.category.CategoryDto;
 import ru.practicum.explore.dto.category.NewCategoryDto;
 import ru.practicum.explore.service.CategoryService;
 
-import javax.validation.Valid;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/admin/categories")
