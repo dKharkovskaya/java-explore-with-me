@@ -3,15 +3,20 @@ package ru.practicum.explore.dto.compilation;
 import java.util.List;
 
 import lombok.*;
-import ru.practicum.explore.model.Event;
+import ru.practicum.explore.dto.event.EventShortDto;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class CompilationDto {
     private Long id;
-    private List<Event> events;
+    private List<EventShortDto> events;
     private String title;
     private Boolean pinned;
+
+    public CompilationDto(Long id, boolean pinned, String title) {
+        this.id = id;
+        this.pinned = pinned;
+        this.title = title;
+    }
 }

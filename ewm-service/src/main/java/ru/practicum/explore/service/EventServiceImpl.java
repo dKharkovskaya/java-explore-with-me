@@ -1,38 +1,38 @@
 package ru.practicum.explore.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.client.StatsClient;
-import ru.practicum.explore.StatsDtoInput;
-import ru.practicum.explore.StatsDtoOutput;
-import ru.practicum.explore.dto.category.CategoryDto;
+
 import ru.practicum.explore.dto.event.*;
 import ru.practicum.explore.dto.request.EventRequestStatusUpdateRequest;
 import ru.practicum.explore.dto.request.EventRequestStatusUpdateResult;
-import ru.practicum.explore.dto.user.UserShortDto;
-import ru.practicum.explore.enums.RequestState;
-import ru.practicum.explore.enums.StateAction;
-import ru.practicum.explore.error.exception.BadRequestException;
+import ru.practicum.explore.dto.request.ParticipationRequestDto;
 import ru.practicum.explore.error.exception.ConflictException;
 import ru.practicum.explore.error.exception.NotFoundException;
-import ru.practicum.explore.mapper.CategoryMapper;
+import ru.practicum.explore.error.exception.ValidationException;
 import ru.practicum.explore.mapper.EventMapper;
-import ru.practicum.explore.mapper.UserMapper;
+import ru.practicum.explore.mapper.LocationMapper;
+import ru.practicum.explore.mapper.RequestMapper;
+import ru.practicum.explore.model.Category;
 import ru.practicum.explore.model.Event;
+import ru.practicum.explore.model.Location;
 import ru.practicum.explore.model.User;
-import ru.practicum.explore.repository.CategoryRepository;
-import ru.practicum.explore.repository.EventRepository;
-import ru.practicum.explore.repository.RequestRepository;
-import ru.practicum.explore.repository.UserRepository;
+import ru.practicum.explore.repository.*;
 
-import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+
+import static ru.practicum.explore.enums.RequestState.PENDING;
 
 @Service
 @RequiredArgsConstructor
@@ -44,229 +44,111 @@ public class EventServiceImpl implements EventService {
     private final RequestRepository requestRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
+    private final LocationRepository locationRepository;
+    final CategoryService categoryService;
     private final StatsClient statsClient;
+
+
+    @Override
+    public List<EventFullDto> getAdminEvents(List<Long> users, List<String> states, List<Long> categories, String rangeStart, String rangeEnd, int from, int size) {
+        return List.of();
+    }
+
+
+    @Override
+    public EventFullDto updateEventByAdmin(Long eventId, UpdateEventAdminRequest dto) {
+        return null;
+    }
+
 
     @Override
     public EventFullDto addEvent(Long userId, NewEventDto dto) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Не найден пользователь с идентификатором " + userId));
-        Event event = EventMapper.fromNewEventDto(dto);
-        event.setInitiator(userId);
-        if (LocalDateTime.parse(dto.getEventDate(), formatter).isBefore(LocalDateTime.now().plusHours(2))) {
-            throw new BadRequestException("Необходимо соблюдать минимальный интервал времени в 2 часа до начала события");
-        }
-        if (dto.getPaid() == null) {
-            event.setPaid(false);
-        }
-        if (dto.getRequestModeration() == null) {
-            event.setRequestModeration(true);
-        }
-        if (dto.getParticipantLimit() == null) {
-            event.setParticipantLimit(0);
-        }
+        checkActualTime(dto.getEventDate());
+        User user = userRepository.findById(userId).orElseThrow(() ->
+                new NotFoundException("User with id=" + userId + " was not found"));
+        Long catId = dto.getCategory();
+        Category category = categoryRepository.findById(catId).orElseThrow(() ->
+                new NotFoundException("Category with id=" + catId + " was not found"));
+        Location location = checkLocation(LocationMapper.toLocation(dto.getLocation()));
+        Event event = EventMapper.toEvent(dto);
+        event.setInitiator(user);
+        event.setCategory(category);
+        event.setLocationLat(location.getLat());
+        event.setLocationLon(location.getLon());
         event.setCreatedOn(LocalDateTime.now());
-        event.setState(RequestState.PENDING);
-        event.setPublishedOn(null);
-        event = eventRepository.save(event);
-
-        Long catId = event.getCategory();
-        CategoryDto categoryDto = CategoryMapper.toDto(categoryRepository.findById(catId).orElseThrow(() -> new NotFoundException("Не найдена категория с идентификатором" + catId)));
-        UserShortDto userDto = UserMapper.toShortDto(user);
-        return EventMapper.toEventFullDto(event, categoryDto, userDto);
+        event.setState(PENDING);
+        return EventMapper.toEventFullDto(eventRepository.save(event), 0L);
     }
 
     @Override
     public List<EventShortDto> getUserEvents(Long userId, int from, int size) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Не найден пользователь с идентификатором " + userId));
-        PageRequest pageRequest = PageRequest.of(from / size, size);
-        return eventRepository.getEventsPrivate(userId, pageRequest).stream()
-                .map(event -> {
-                    Long catId = event.getCategory();
-                    CategoryDto categoryDto = CategoryMapper.toDto(categoryRepository.findById(catId).orElseThrow(() -> new NotFoundException("Не найдена категория с идентификатором" + catId)));
-                    UserShortDto userDto = UserMapper.toShortDto(user);
-                    EventShortDto eventDto = EventMapper.toEventShortDto(event);
-                    eventDto.setInitiator(userDto);
-                    eventDto.setCategory(categoryDto);
-                    return eventDto;
-                }).toList();
-    }
-
-    @Override
-    public EventFullDto getUserEventById(Long userId, Long eventId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Не найден пользователь с идентификатором " + userId));
-        Event event = eventRepository.getEventPrivate(userId, eventId);
-        if (event == null) {
-            throw new NotFoundException("Не найдено событие с идентификатором " + eventId);
-        }
-        Long catId = event.getCategory();
-        CategoryDto categoryDto = CategoryMapper.toDto(categoryRepository.findById(catId).orElseThrow(() -> new NotFoundException("Не найдена категория с идентификатором " + catId)));
-        UserShortDto userDto = UserMapper.toShortDto(user);
-        return EventMapper.toEventFullDto(event, categoryDto, userDto);
-    }
-
-    @Override
-    public EventFullDto updateEventByUser(Long userId, Long eventId, UpdateEventUserRequest dto) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Не найден пользователь с идентификатором " + userId));
-        Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException("Не найдено событие с идентификатором " + eventId));
-        if (event.getState() != RequestState.PENDING && event.getState() != RequestState.CANCELED) {
-            throw new ConflictException("Изменять можно только события в статусах: PENDING, CANCELED");
-        }
-        if (!event.getInitiator().equals(userId)) {
-            throw new ConflictException("У пользователя " + userId + " нет доступа к событию " + eventId);
-        }
-        if (dto.getAnnotation() != null) {
-            event.setAnnotation(dto.getAnnotation());
-        }
-        if (dto.getCategory() != null) {
-            event.setCategory(dto.getCategory());
-        }
-        if (dto.getDescription() != null) {
-            event.setDescription(dto.getDescription());
-        }
-        if (dto.getEventDate() != null) {
-            LocalDateTime date = dto.getEventDate();
-            if (date.isBefore(LocalDateTime.now().plusHours(2))) {
-                throw new BadRequestException("Необходимо соблюдать минимальный интервал времени в 2 часа до начала события");
-            }
-            event.setEventDate(date);
-        }
-        if (dto.getPaid() != null) {
-            event.setPaid(dto.getPaid());
-        }
-        if (dto.getParticipantLimit() != null) {
-            event.setParticipantLimit(dto.getParticipantLimit());
-        }
-        if (dto.getRequestModeration() != null) {
-            event.setRequestModeration(dto.getRequestModeration());
-        }
-        if (dto.getTitle() != null) {
-            event.setTitle(dto.getTitle());
-        }
-        if (dto.getLocation() != null) {
-            event.setLocationLat(dto.getLocation().getLat());
-            event.setLocationLon(dto.getLocation().getLon());
-        }
-        if (dto.getStateAction() != null && dto.getStateAction() == StateAction.SEND_TO_REVIEW) {
-            event.setState(RequestState.PENDING);
-        }
-        if (dto.getStateAction() != null && dto.getStateAction() == StateAction.CANCEL_REVIEW) {
-            event.setState(RequestState.CANCELED);
-        }
-        event = eventRepository.save(event);
-
-        Long catId = event.getCategory();
-        CategoryDto categoryDto = CategoryMapper.toDto(categoryRepository.findById(catId).orElseThrow(() -> new NotFoundException("Не найдена категория с идентификатором" + catId)));
-        UserShortDto userDto = UserMapper.toShortDto(user);
-        return EventMapper.toEventFullDto(event, categoryDto, userDto);
-    }
-
-    @Transactional
-    @Override
-    public EventFullDto updateEventByAdmin(Long eventId, UpdateEventAdminRequest dto) {
-        Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException("Event not found"));
-
-        // EventMapper.updateEventFromAdminDto(event, dto);
-        // return EventMapper.toEventFullDto(eventRepository.save(event));
-        throw new RuntimeException();
-    }
-
-    @Override
-    public List<EventFullDto> getAdminEvents(List<Long> users, List<String> states, List<Long> categories, LocalDateTime rangeStart, LocalDateTime rangeEnd, int from, int size) {
-        LocalDateTime dateFrom = null;
-        if (rangeStart != null) {
-            dateFrom = rangeStart;
-        }
-        LocalDateTime dateTo = null;
-        if (rangeEnd != null) {
-            dateTo = rangeEnd;
-        }
-        if (dateFrom != null && dateTo != null && dateTo.isBefore(dateFrom)) {
-            throw new BadRequestException("Интервал фильтрации задан некорректно");
-        }
-        Pageable pageable = PageRequest.of(from / size, size, Sort.by("id"));
-        return eventRepository.getEventsAdmin(users, categories, states, dateFrom, dateTo, pageable).stream()
-                .map(event -> {
-                    if (event.getConfirmedRequests() == null) {
-                        int confirmed = requestRepository.countByEventAndStatus(event.getId(), RequestState.CONFIRMED);
-                        event.setConfirmedRequests(confirmed);
-                    }
-                    Long catId = event.getCategory();
-                    Long userId = event.getInitiator();
-                    CategoryDto categoryDto = CategoryMapper.toDto(categoryRepository.findById(catId).orElseThrow(() -> new NotFoundException("Не найдена категория с идентификатором" + catId)));
-                    UserShortDto initiatorDto = UserMapper.toShortDto(userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Не найден пользователь с идентификатором " + userId)));
-                    return EventMapper.toEventFullDto(event, categoryDto, initiatorDto);
-                })
+        findUserByIdOrThrowNotFoundException(userId);
+        Pageable pageable = PageRequest.of(from, size);
+        List<Event> eventPage = eventRepository.findAllByInitiatorId(userId, pageable);
+        return eventPage.stream()
+                .map(EventMapper::toEventShortDto)
                 .toList();
     }
 
     @Override
-    public List<EventFullDto> getPublicEvents(String text, List<Long> categories, Boolean paid, LocalDateTime rangeStart, LocalDateTime rangeEnd, Boolean onlyAvailable, String sort, int from, int size, String uri, Object request) {
+    public EventFullDto getUserEventById(Long userId, Long eventId) {
+        return null;
+    }
 
-        LocalDateTime dateFrom = null;
-        if (rangeStart != null) {
-            dateFrom = rangeStart;
+    @Override
+    public EventFullDto updateEventByUser(Long userId, Long eventId, UpdateEventUserRequest dto) {
+        return null;
+    }
+
+    @Override
+    public EventRequestStatusUpdateResult updateEventRequestsPrivate(Long userId, Long eventId, EventRequestStatusUpdateRequest entity) {
+        return null;
+    }
+
+    @Override
+    public List<ParticipationRequestDto> getRequestsOnEvent(Long userId, Long eventId) {
+        findUserByIdOrThrowNotFoundException(userId);
+        Event event = findEventByIdOrThrowNotFoundException(eventId);
+        if (!Objects.equals(userId, event.getInitiator().getId())) {
+            throw new ConflictException(String.format("user id=%d is not initiator of event id=%d", userId, eventId));
         }
-        LocalDateTime dateTo = null;
-        if (rangeEnd != null) {
-            dateTo = rangeEnd;
-        }
-        if (rangeStart == null && rangeEnd == null) {
-            dateFrom = LocalDateTime.now();
-        }
-        if (dateFrom != null && dateTo != null && dateTo.isBefore(dateFrom)) {
-            throw new BadRequestException("Диапазон дат задан неверно");
-        }
-        Pageable pageable = PageRequest.of(from / size, size, Sort.by("id"));
-        List<EventFullDto> resp = null;
-        if (sort.equals("EVENT_DATE")) {
-            resp = eventRepository.getEventsPublicOrderByEventDate(text, categories, paid, onlyAvailable, dateFrom, dateTo, pageable).stream()
-                    .map(event -> {
-                        Long catId = event.getCategory();
-                        CategoryDto categoryDto = CategoryMapper.toDto(categoryRepository.findById(catId).orElseThrow(() -> new NotFoundException("Не найдена категория с идентификатором" + catId)));
-                        Long userId = event.getInitiator();
-                        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Не найден пользователь с идентификатором " + userId));
-                        UserShortDto userDto = UserMapper.toShortDto(user);
-                        return EventMapper.toEventFullDto(event, categoryDto, userDto);
-                    })
-                    .toList();
-        } else {
-            resp = eventRepository.getEventsPublicOrderByViews(text, categories, paid, onlyAvailable, dateFrom, dateTo, pageable).stream()
-                    .map(event -> {
-                        Long catId = event.getCategory();
-                        CategoryDto categoryDto = CategoryMapper.toDto(categoryRepository.findById(catId).orElseThrow(() -> new NotFoundException("Не найдена категория с идентификатором" + catId)));
-                        Long userId = event.getInitiator();
-                        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Не найден пользователь с идентификатором " + userId));
-                        UserShortDto userDto = UserMapper.toShortDto(user);
-                        return EventMapper.toEventFullDto(event, categoryDto, userDto);
-                    })
-                    .toList();
-        }
-        return resp;
+        return requestRepository.findAllByEventId(eventId).stream()
+                .map(RequestMapper::toDto)
+                .toList();
+    }
+
+
+    @Override
+    public List<EventFullDto> getPublicEvents(String text, List<Long> categories, Boolean paid, String rangeStart, String rangeEnd, Boolean onlyAvailable, String sort, int from, int size, String uri, Object request) {
+        return List.of();
     }
 
     @Override
     public EventFullDto getPublicEventById(Long id, String uri, Object request) {
-        Event event = getEventByIdAndCheckPublished(id);
-        statsClient.hit(new StatsDtoInput("ewm-main-server", uri, ((HttpServletRequest) request).getRemoteAddr(), LocalDateTime.now().format(StatsDtoInput.DATE_TIME_FORMATTER)));
-        //EventFullDto dto = EventMapper.toEventFullDto(event);
-        //return dto;
-        throw new RuntimeException();
+        return null;
     }
 
-    @Override
-    public Event getEventById(Long id) {
-        return eventRepository.findById(id).orElseThrow(() -> new NotFoundException("Event with id=" + id + " was not found"));
+    private User findUserByIdOrThrowNotFoundException(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Объект не найден"));
     }
 
-    private Long getViews(Long eventId) {
-        List<StatsDtoOutput> stats = statsClient.getStats(LocalDateTime.now().minusYears(10), LocalDateTime.now().plusYears(10), List.of("/events/" + eventId), true);
-        return stats.isEmpty() ? 0 : stats.get(0).getHits();
+    private Event findEventByIdOrThrowNotFoundException(Long eventId) {
+        return eventRepository.findById(eventId)
+                .orElseThrow(() -> new NotFoundException("Объект не найден"));
     }
 
-    @Override
-    @Transactional
-    public EventRequestStatusUpdateResult updateEventRequestsPrivate(Long userId, Long eventId, EventRequestStatusUpdateRequest entity) {
-        userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Не найден пользователь с идентификатором " + userId));
-        Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException("Не найдено событие с идентификатором " + eventId));
-        throw new ConflictException("Заявку может изменить только инициатор");
+    protected void checkActualTime(LocalDateTime eventTime) {
+        if (eventTime.isBefore(LocalDateTime.now().plusHours(2))) {
+            throw new ValidationException("Incorrectly made request.");
+        }
+    }
+
+    private Location checkLocation(Location location) {
+        if (locationRepository.existsByLatAndLon(location.getLat(), location.getLon())) {
+            return locationRepository.findByLatAndLon(location.getLat(), location.getLon());
+        } else {
+            return locationRepository.save(location);
+        }
     }
 }

@@ -58,11 +58,11 @@ public class Event {
 
     @ManyToOne
     @JoinColumn(name = "initiator_id", nullable = false)
-    private Long initiator;
+    private User initiator;
 
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
-    private Long category;
+    private Category category;
 
     @Transient
     @Accessors(chain = true)

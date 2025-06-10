@@ -1,27 +1,27 @@
 package ru.practicum.explore.mapper;
 
+import lombok.experimental.UtilityClass;
 import ru.practicum.explore.dto.category.CategoryDto;
 import ru.practicum.explore.dto.category.NewCategoryDto;
 import ru.practicum.explore.model.Category;
 
+@UtilityClass
 public class CategoryMapper {
 
-    public static Category toCategory(NewCategoryDto newCategoryDto) {
-        return Category.builder()
-                .name(newCategoryDto.getName())
-                .build();
+    public Category toCategory(NewCategoryDto newCategoryDto) {
+        return new Category(newCategoryDto.getName());
     }
 
-    public static CategoryDto toDto(Category category) {
-        return CategoryDto.builder()
-                .id(category.getId())
-                .name(category.getName())
-                .build();
+    public Category toCategory(CategoryDto categoryDto) {
+        return new Category(
+                categoryDto.getId(),
+                categoryDto.getName());
     }
 
-    public static void updateCategoryFromDto(Category category, CategoryDto categoryDto) {
-        if (categoryDto.getName() != null && !categoryDto.getName().isBlank()) {
-            category.setName(categoryDto.getName());
-        }
+    public CategoryDto toCategoryDto(Category category) {
+        return new CategoryDto(
+                category.getId(),
+                category.getName()
+        );
     }
 }

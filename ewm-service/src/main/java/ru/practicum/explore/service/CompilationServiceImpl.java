@@ -2,26 +2,22 @@ package ru.practicum.explore.service;
 
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.explore.dto.compilation.CompilationDto;
 import ru.practicum.explore.dto.compilation.NewCompilationDto;
 import ru.practicum.explore.dto.compilation.UpdateCompilationRequest;
-import ru.practicum.explore.error.exception.ConflictException;
 import ru.practicum.explore.error.exception.NotFoundException;
 import ru.practicum.explore.mapper.CompilationMapper;
 import ru.practicum.explore.model.Compilation;
 import ru.practicum.explore.model.Event;
 import ru.practicum.explore.repository.CompilationRepository;
 import ru.practicum.explore.repository.EventRepository;
+import ru.practicum.explore.repository.RequestRepository;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -30,74 +26,66 @@ public class CompilationServiceImpl implements CompilationService {
 
     private final CompilationRepository compilationRepository;
     private final EventRepository eventRepository;
+    private final RequestRepository requestRepository;
 
     @Override
-    public CompilationDto createCompilation(NewCompilationDto dto) {
-        if (!compilationRepository.findByTitleIgnoreCase(dto.getTitle()).isEmpty()) {
-            throw new NotFoundException("Подборка с названием " + dto.getTitle() + " уже существует");
+    public CompilationDto addCompilation(NewCompilationDto newCompilationDto) {
+        Compilation compilation = CompilationMapper.toCompilation(newCompilationDto);
+        List<Long> eventsIds = newCompilationDto.getEvents();
+        if (eventsIds != null && !eventsIds.isEmpty()) {
+            List<Event> events = eventRepository.findAllById(eventsIds);
+            compilation.setEvents(events);
+        } else {
+            compilation.setEvents(new ArrayList<>());
         }
-        Set<Event> events = new HashSet<>();
-        if (dto.getEvents() != null && !dto.getEvents().isEmpty()) {
-            events = new HashSet<>(eventRepository.findAllByIdIn(dto.getEvents().stream().toList()));
-        }
-
-        Compilation compilation = CompilationMapper.toCompilation(dto, events);
         compilation = compilationRepository.save(compilation);
-        return CompilationMapper.fromCompilation(compilation);
+        return CompilationMapper.toCompilationDto(compilation);
     }
 
     @Override
-    public void deleteCompilation(Long compId) {
-        if (!compilationRepository.existsById(compId)) {
-            throw new NotFoundException("Compilation with id=" + compId + " not found");
-        }
-        compilationRepository.deleteById(compId);
-    }
-
-    @Override
-    public CompilationDto updateCompilation(Long compId, UpdateCompilationRequest dto) {
-        Compilation compilation = compilationRepository.findById(compId).orElseThrow(() -> new NotFoundException("Подборка с идентификатором " + compId + " не найдена"));
-
-        if (dto.getPinned() != null) {
-            compilation.setPinned(dto.getPinned());
-        }
-
-        if (dto.getTitle() != null) {
-            if (!compilationRepository.findByTitleIgnoreCase(dto.getTitle()).isEmpty()) {
-                throw new ConflictException("Подборка с названием " + dto.getTitle() + " уже существует");
-            }
-            if (compilation.getTitle().equalsIgnoreCase(dto.getTitle())) {
-                throw new ConflictException("Подборка с названием " + dto.getTitle() + " уже существует");
-            }
-            compilation.setTitle(dto.getTitle());
-        }
-
-        if (dto.getEvents() != null) {
-            Set<Event> events = new HashSet<>();
-            if (!dto.getEvents().isEmpty()) {
-                events = new HashSet<>(eventRepository.findAllByIdIn(dto.getEvents().stream().toList()));
-            }
+    public CompilationDto updateCompilation(Long compId, UpdateCompilationRequest updateCompilation) {
+        Compilation compilation = findCompilationByIdOrThrowNotFoundException(compId);
+        if (updateCompilation.getEvents() != null) {
+            List<Long> eventsIds = updateCompilation.getEvents();
+            List<Event> events = eventRepository.findAllById(eventsIds);
             compilation.setEvents(events);
         }
-
-        return CompilationMapper.fromCompilation(compilationRepository.save(compilation));
+        compilation = compilationRepository.save(compilation);
+        return CompilationMapper.toCompilationDto(compilation);
     }
 
     @Override
-    public List<CompilationDto> getCompilations(Boolean pinned, int from, int size) {
-        Pageable pageable = PageRequest.of(from / size, size, Sort.by("id"));
-        Page<Compilation> compilations = pinned == null ? compilationRepository.findAll(pageable) : compilationRepository.findByPinned(pinned, pageable);
-        return compilations.stream().map(CompilationMapper::fromCompilation).toList();
+    @Transactional(readOnly = true)
+    public List<CompilationDto> getCompilations(Boolean pinned, Integer from, Integer size) {
+        Pageable pageable = PageRequest.of(from, size);
+        List<Compilation> compilationPage;
+        if (pinned != null) {
+            compilationPage = compilationRepository.findAllByPinned(pinned, pageable);
+        } else {
+            compilationPage = compilationRepository.findAll(pageable).getContent();
+        }
+        return compilationPage.stream()
+                .map(CompilationMapper::toCompilationDto)
+                .toList();
     }
 
     @Override
-    public CompilationDto getCompilationById(Long compId) {
-        return CompilationMapper.fromCompilation(compilationRepository.findById(compId).orElseThrow(() -> new NotFoundException("Подборка не найдена")));
+    @Transactional(readOnly = true)
+    public CompilationDto getCompilationById(Long compilationId) {
+        Compilation compilation = compilationRepository.findById(compilationId)
+                .orElseThrow(() -> new NotFoundException("Не найдено"));
+        return CompilationMapper.toCompilationDto(compilation);
     }
 
-    // Вспомогательный метод
-    private Compilation getCompilationIfExists(Long compId) {
-        return compilationRepository.findById(compId)
-                .orElseThrow(() -> new NotFoundException("Compilation with id=" + compId + " not found"));
+    @Override
+    public void deleteCompilation(Long compilationId) {
+        findCompilationByIdOrThrowNotFoundException(compilationId);
+        compilationRepository.deleteById(compilationId);
+    }
+
+
+    private Compilation findCompilationByIdOrThrowNotFoundException(Long compilationId) {
+        return compilationRepository.findById(compilationId)
+                .orElseThrow(() -> new NotFoundException("Объект не найден"));
     }
 }

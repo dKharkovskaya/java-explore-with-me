@@ -8,7 +8,7 @@ import org.springframework.web.client.RestTemplate;
 import ru.practicum.explore.StatsDtoInput;
 import ru.practicum.explore.StatsDtoOutput;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
@@ -29,7 +29,7 @@ public class StatsClient {
     }
 
     // Получает статистику за период
-    public List<StatsDtoOutput> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
+    public List<StatsDtoOutput> getStats(Instant start, Instant end, List<String> uris, Boolean unique) {
         String uri = "/stats?start={start}&end={end}&unique={unique}";
 
         if (uris != null && !uris.isEmpty()) {
@@ -43,8 +43,8 @@ public class StatsClient {
         ResponseEntity<StatsDtoOutput[]> response = restTemplate.getForEntity(
                 uri,
                 StatsDtoOutput[].class,
-                start.format(StatsDtoInput.DATE_TIME_FORMATTER),
-                end.format(StatsDtoInput.DATE_TIME_FORMATTER),
+                start,
+                end,
                 unique
         );
 

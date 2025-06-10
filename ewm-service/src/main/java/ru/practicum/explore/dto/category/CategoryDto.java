@@ -8,7 +8,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 @Data
-@Builder
+@AllArgsConstructor
 public class CategoryDto {
     private Long id;
 

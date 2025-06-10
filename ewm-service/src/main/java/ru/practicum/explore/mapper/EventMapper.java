@@ -1,12 +1,8 @@
 package ru.practicum.explore.mapper;
 
 import lombok.experimental.UtilityClass;
-import ru.practicum.explore.dto.category.CategoryDto;
 import ru.practicum.explore.dto.event.*;
-import ru.practicum.explore.dto.Location;
-import ru.practicum.explore.dto.user.UserShortDto;
 import ru.practicum.explore.model.Event;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @UtilityClass
@@ -14,56 +10,67 @@ public class EventMapper {
 
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    public static EventFullDto toEventFullDto(Event event, CategoryDto categoryDto, UserShortDto initiatorDto) {
+    public Event toEvent(NewEventDto newEventDto) {
+        return Event.builder()
+                .annotation(newEventDto.getAnnotation())
+                .description(newEventDto.getDescription())
+                .eventDate(newEventDto.getEventDate())
+                .paid(newEventDto.isPaid())
+                .participantLimit(newEventDto.getParticipantLimit())
+                .requestModeration(newEventDto.isRequestModeration())
+                .title(newEventDto.getTitle())
+                .build();
+    }
+
+    public EventFullDto toEventFullDto(Event event, Long confirmedRequests) {
         return EventFullDto.builder()
+                .id(event.getId())
                 .annotation(event.getAnnotation())
-                .confirmedRequests(event.getConfirmedRequests())
+                .category(CategoryMapper.toCategoryDto(event.getCategory()))
+                .confirmedRequests(confirmedRequests)
                 .createdOn(event.getCreatedOn())
                 .description(event.getDescription())
                 .eventDate(event.getEventDate())
-                .id(event.getId())
+                .initiator(UserMapper.toShortDto(event.getInitiator()))
+                .location(LocationMapper.toLocationDto(event.getLocationLat(), event.getLocationLon()))
                 .paid(event.getPaid())
                 .participantLimit(event.getParticipantLimit())
                 .publishedOn(event.getPublishedOn())
                 .requestModeration(event.getRequestModeration())
                 .state(event.getState())
                 .title(event.getTitle())
-                .views(event.getViews())
-                .initiator(initiatorDto)
-                .category(categoryDto)
-                .location(new Location(event.getLocationLat(), event.getLocationLon()))
                 .build();
     }
 
-    public static EventShortDto toEventShortDto(Event event) {
-        return EventShortDto.builder()
-                .annotation(event.getAnnotation())
-                .confirmedRequests(event.getConfirmedRequests())
-                .eventDate(event.getEventDate())
+    public EventFullDtoWithViews toEventFullDtoWithViews(Event event, Long views, Long confirmedRequests) {
+        return EventFullDtoWithViews.builder()
                 .id(event.getId())
+                .annotation(event.getAnnotation())
+                .category(CategoryMapper.toCategoryDto(event.getCategory()))
+                .confirmedRequests(confirmedRequests)
+                .createdOn(event.getCreatedOn())
+                .description(event.getDescription())
+                .eventDate(event.getEventDate())
+                .paid(event.getPaid())
+                .participantLimit(event.getParticipantLimit())
+                .publishedOn(event.getPublishedOn())
+                .requestModeration(event.getRequestModeration())
+                .state(event.getState())
+                .title(event.getTitle())
+                .views(views)
+                .build();
+    }
+
+    public EventShortDto toEventShortDto(Event event) {
+        return EventShortDto.builder()
+                .id(event.getId())
+                .annotation(event.getAnnotation())
+                .category(CategoryMapper.toCategoryDto(event.getCategory()))
+                .eventDate(event.getEventDate())
                 .paid(event.getPaid())
                 .title(event.getTitle())
-                .views(event.getViews())
                 .build();
     }
 
-    public static Event fromNewEventDto(NewEventDto dto) {
 
-        Event event = Event.builder()
-                .category(dto.getCategory())
-                .participantLimit(dto.getParticipantLimit())
-                .title(dto.getTitle())
-                .description(dto.getDescription())
-                .annotation(dto.getAnnotation())
-                .paid(dto.getPaid())
-                .requestModeration(dto.getRequestModeration())
-                .eventDate(LocalDateTime.parse(dto.getEventDate(), formatter))
-                .build();
-
-        if (dto.getLocation() != null) {
-            event.setLocationLat(dto.getLocation().getLat());
-            event.setLocationLon(dto.getLocation().getLon());
-        }
-        return event;
-    }
 }

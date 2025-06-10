@@ -1,50 +1,48 @@
 package ru.practicum.explore.dto.event;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import ru.practicum.explore.dto.Location;
+import ru.practicum.explore.dto.LocationDto;
 
 
 import lombok.*;
 
+import javax.validation.Valid;
 import javax.validation.constraints.*;
+import java.time.LocalDateTime;
 
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class NewEventDto {
-    @Size(min = 20, message = "Минимальная длина поля 20 символов")
-    @Size(max = 2000, message = "Максимальная длина поля 2000 символов")
-    @NotNull(message = "Поле не может быть неопределенным")
-    @NotEmpty(message = "Поле не может быть пустым")
-    @NotBlank(message = "Поле не может состоять из пробелов")
+    @Size(min = 20, max = 2000)
+    @NotBlank
     private String annotation;
 
-    @Size(min = 20, message = "Минимальная длина поля 20 символов")
-    @Size(max = 7000, message = "Максимальная длина поля 7000 символов")
-    @NotNull(message = "Поле не может быть неопределенным")
-    @NotEmpty(message = "Поле не может быть пустым")
-    @NotBlank(message = "Поле не может состоять из пробелов")
-    private String description;
-
-    @Size(min = 3, message = "Минимальная длина поля 3 символов")
-    @Size(max = 120, message = "Максимальная длина поля 120 символов")
-    @NotNull(message = "Поле не может быть неопределенным")
-    @NotEmpty(message = "Поле не может быть пустым")
-    @NotBlank(message = "Поле не может состоять из пробелов")
-    private String title;
-
-    @NotNull(message = "Поле не может быть неопределенным")
-    private String eventDate;
-
-    @NotNull(message = "Поле не может быть неопределенным")
+    @NotNull
     private Long category;
 
-    private Boolean paid = false;
+    @Size(min = 20, max = 7000)
+    @NotBlank
+    private String description;
+
+    @NotNull
+    @Future
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime eventDate;
+
+    @NotNull
+    @Valid
+    private LocationDto location;
+
+    boolean paid = false;
 
     @PositiveOrZero
-    private Integer participantLimit = 0;
+    private int participantLimit = 0;
 
-    private Boolean requestModeration = true;
+    private boolean requestModeration = true;
 
-    @JsonFormat(shape = JsonFormat.Shape.OBJECT)
-    private Location location;
+    @Size(min = 3, max = 120)
+    @NotBlank
+    private String title;
 }

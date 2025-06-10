@@ -2,6 +2,8 @@ package ru.practicum.explore.service;
 
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.explore.dto.user.NewUserRequest;
@@ -24,41 +26,29 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto addUser(NewUserRequest dto) {
-        if (dto == null) {
-            throw new IllegalArgumentException("DTO не может быть null");
-        }
-        if (dto.getEmail() == null || dto.getEmail().isBlank()) {
-            throw new IllegalArgumentException("Email обязателен");
-        }
-
-        if (userRepository.existsByEmail(dto.getEmail())) {
-            throw new ConflictException("Email already exists");
-        }
-
         User user = UserMapper.toUser(dto);
-        return UserMapper.toDto(userRepository.save(user));
+        user = userRepository.save(user);
+        return UserMapper.toDto(user);
     }
 
     @Override
     public void deleteUser(Long userId) {
-        if (!userRepository.existsById(userId)) {
-            throw new NotFoundException("User with id=" + userId + " was not found");
-        }
+        userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Объект не найден"));
         userRepository.deleteById(userId);
     }
 
     @Override
     public List<UserDto> getUsers(List<Long> ids, int from, int size) {
-        if (ids != null && !ids.isEmpty()) {
-            return userRepository.findAllByIdIn(ids).stream()
-                    .map(UserMapper::toDto)
-                    .collect(Collectors.toList());
+        List<User> users;
+        Pageable pageable = PageRequest.of(from, size);
+        if (ids == null || ids.isEmpty()) {
+            users = userRepository.findAll(pageable).getContent();
         } else {
-            return userRepository.findAll().stream()
-                    .skip(from)
-                    .limit(size)
-                    .map(UserMapper::toDto)
-                    .collect(Collectors.toList());
+            users = userRepository.findAllByIdIn(ids, pageable);
         }
+        return users.stream()
+                .map(UserMapper::toDto)
+                .toList();
     }
 }

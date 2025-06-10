@@ -11,20 +11,18 @@ import java.util.Set;
 
 @UtilityClass
 public class CompilationMapper {
-    public CompilationDto fromCompilation(Compilation compilation) {
-        return CompilationDto.builder()
-                .id(compilation.getId())
-                .title(compilation.getTitle())
-                .pinned(compilation.getPinned())
-                .events(compilation.getEvents().stream().toList())
-                .build();
+    public Compilation toCompilation(NewCompilationDto newCompilationDto) {
+        return new Compilation(
+                newCompilationDto.getTitle(),
+                newCompilationDto.getPinned()
+        );
     }
 
-    public Compilation toCompilation(NewCompilationDto dto, Set<Event> events) {
-        return Compilation.builder()
-                .title(dto.getTitle())
-                .pinned(dto.getPinned() != null ? dto.getPinned() : false)
-                .events(events)
-                .build();
+    public CompilationDto toCompilationDto(Compilation compilation) {
+        return new CompilationDto(
+                compilation.getId(),
+                compilation.getPinned(),
+                compilation.getTitle()
+        );
     }
 }
