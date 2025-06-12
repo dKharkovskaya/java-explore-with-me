@@ -46,7 +46,7 @@ public class RequestServiceImpl implements RequestService {
             throw new ForbiddenException("Participation is possible only in published event.");
         }
         if (event.getParticipantLimit() != 0 && event.getParticipantLimit() <=
-                requestRepository.countByEventIdAndStatus(eventId, CONFIRMED)) {
+                requestRepository.countByEventIdAndStatus(eventId, RequestState.CONFIRMED.name())) {
             throw new ForbiddenException("Participant limit has been reached.");
         }
 

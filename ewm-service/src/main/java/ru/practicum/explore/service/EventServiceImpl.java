@@ -110,7 +110,7 @@ public class EventServiceImpl implements EventService {
             event.setTitle(title);
         }
         return EventMapper.toEventFullDto(eventRepository.save(event),
-                requestRepository.countByEventIdAndStatus(eventId, CONFIRMED));
+                requestRepository.countByEventIdAndStatus(eventId, RequestState.CONFIRMED.name()));
     }
 
 
@@ -195,7 +195,7 @@ public class EventServiceImpl implements EventService {
             }
         }
         return EventMapper.toEventFullDto(eventRepository.save(event),
-                requestRepository.countByEventIdAndStatus(eventId, CONFIRMED));
+                requestRepository.countByEventIdAndStatus(eventId, RequestState.CONFIRMED.name()));
     }
 
     @Override
