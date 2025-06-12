@@ -2,6 +2,7 @@ package ru.practicum.explore.model;
 
 import lombok.*;
 import lombok.experimental.Accessors;
+import ru.practicum.explore.dto.LocationDto;
 import ru.practicum.explore.enums.RequestState;
 
 import javax.persistence.*;
@@ -39,6 +40,8 @@ public class Event {
 
     @Column(name = "location_lon", nullable = false)
     private Float locationLon;
+
+    private LocationDto location;
 
     @Column(name = "paid", nullable = false)
     private Boolean paid;

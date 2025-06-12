@@ -13,6 +13,7 @@ import ru.practicum.explore.dto.request.EventRequestStatusUpdateResult;
 import ru.practicum.explore.dto.request.ParticipationRequestDto;
 import ru.practicum.explore.enums.RequestState;
 import ru.practicum.explore.enums.StateActionAdmin;
+import ru.practicum.explore.enums.StateActionPrivate;
 import ru.practicum.explore.error.exception.ConflictException;
 import ru.practicum.explore.error.exception.ForbiddenException;
 import ru.practicum.explore.error.exception.NotFoundException;
@@ -34,6 +35,8 @@ import java.util.*;
 import static ru.practicum.explore.enums.RequestState.*;
 import static ru.practicum.explore.enums.StateActionAdmin.PUBLISH_EVENT;
 import static ru.practicum.explore.enums.StateActionAdmin.REJECT_EVENT;
+import static ru.practicum.explore.enums.StateActionPrivate.CANCEL_REVIEW;
+import static ru.practicum.explore.enums.StateActionPrivate.SEND_TO_REVIEW;
 
 @Service
 @RequiredArgsConstructor
@@ -148,7 +151,53 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public EventFullDto updateEventByUser(Long userId, Long eventId, UpdateEventUserRequest dto) {
-        return null;
+        Event event = getEvent(eventId, userId);
+        if (event.getState() == PUBLISHED) {
+            throw new ForbiddenException("Published events can't be update");
+        }
+        String annotation = dto.getAnnotation();
+        if (annotation != null && !annotation.isBlank()) {
+            event.setAnnotation(annotation);
+        }
+        if (dto.getCategory() != null) {
+            event.setCategory(CategoryMapper.toCategory(categoryService.getCategoryById(dto.getCategory())));
+        }
+        String description = dto.getDescription();
+        if (description != null && !description.isBlank()) {
+            event.setDescription(description);
+        }
+        LocalDateTime eventDate = dto.getEventDate();
+        if (eventDate != null) {
+            checkActualTime(eventDate);
+            event.setEventDate(eventDate);
+        }
+        if (dto.getLocation() != null) {
+            Location location = checkLocation(LocationMapper.toLocation(dto.getLocation()));
+            event.setLocation(LocationMapper.toLocationDto(location.getLat(), location.getLon()));
+        }
+        if (dto.getPaid() != null) {
+            event.setPaid(dto.getPaid());
+        }
+        if (dto.getParticipantLimit() != null) {
+            event.setParticipantLimit(dto.getParticipantLimit());
+        }
+        if (dto.getRequestModeration() != null) {
+            event.setRequestModeration(dto.getRequestModeration());
+        }
+        String title = dto.getTitle();
+        if (title != null && !title.isBlank()) {
+            event.setTitle(title);
+        }
+        if (dto.getStateAction() != null) {
+            StateActionPrivate stateActionPrivate = StateActionPrivate.valueOf(dto.getStateAction());
+            if (stateActionPrivate.equals(SEND_TO_REVIEW)) {
+                event.setState(PENDING);
+            } else if (stateActionPrivate.equals(CANCEL_REVIEW)) {
+                event.setState(RequestState.CANCELED);
+            }
+        }
+        return EventMapper.toEventFullDto(eventRepository.save(event),
+                requestRepository.countByEventIdAndStatus(eventId, CONFIRMED));
     }
 
     @Override
@@ -205,6 +254,11 @@ public class EventServiceImpl implements EventService {
 
     private Event getEvent(Long eventId) {
         return eventRepository.findById(eventId).orElseThrow(() ->
+                new NotFoundException("Event with id=" + eventId + " was not found"));
+    }
+
+    private Event getEvent(Long eventId, Long userId) {
+        return eventRepository.findByIdAndInitiatorId(eventId, userId).orElseThrow(() ->
                 new NotFoundException("Event with id=" + eventId + " was not found"));
     }
 
