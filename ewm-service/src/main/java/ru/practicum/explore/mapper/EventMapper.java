@@ -32,7 +32,7 @@ public class EventMapper {
                 .description(event.getDescription())
                 .eventDate(event.getEventDate())
                 .initiator(UserMapper.toShortDto(event.getInitiator()))
-                .location(LocationMapper.toLocationDto(event.getLocationLat(), event.getLocationLon()))
+                .location(event.getLocation())
                 .paid(event.getPaid())
                 .participantLimit(event.getParticipantLimit())
                 .publishedOn(event.getPublishedOn())

@@ -1,7 +1,6 @@
 package ru.practicum.explore.dto.event;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import ru.practicum.explore.dto.LocationDto;
 import ru.practicum.explore.dto.user.UserShortDto;
 import ru.practicum.explore.dto.category.CategoryDto;
 
@@ -9,6 +8,7 @@ import java.time.LocalDateTime;
 
 import lombok.*;
 import ru.practicum.explore.enums.RequestState;
+import ru.practicum.explore.model.Location;
 
 @Data
 @Builder
@@ -33,7 +33,7 @@ public class EventFullDto {
 
     private UserShortDto initiator;
 
-    private LocationDto location;
+    private Location location;
 
     private Boolean paid;
 

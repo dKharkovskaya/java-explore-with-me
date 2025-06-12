@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.explore.dto.request.ParticipationRequestDto;
 import ru.practicum.explore.enums.RequestState;
 import ru.practicum.explore.error.exception.ConflictException;
+import ru.practicum.explore.error.exception.ForbiddenException;
 import ru.practicum.explore.error.exception.NotFoundException;
 import ru.practicum.explore.mapper.RequestMapper;
 import ru.practicum.explore.model.Event;
@@ -15,7 +16,11 @@ import ru.practicum.explore.repository.EventRepository;
 import ru.practicum.explore.repository.RequestRepository;
 import ru.practicum.explore.repository.UserRepository;
 
+import java.time.LocalDateTime;
 import java.util.*;
+
+import static ru.practicum.explore.enums.RequestState.CONFIRMED;
+import static ru.practicum.explore.enums.RequestState.PENDING;
 
 @Service
 @RequiredArgsConstructor
@@ -31,28 +36,31 @@ public class RequestServiceImpl implements RequestService {
         User user = findUserByIdOrThrowNotFoundException(userId);
         Event event = findEventByIdOrThrowNotFoundException(eventId);
 
-        if (Objects.equals(userId, event.getInitiator().getId())) {
-            throw new ConflictException("initiator can non make request on own event");
-        } else if (event.getState() != RequestState.PUBLISHED) {
-            throw new ConflictException("participation in not publicised event is forbidden");
-        } else if (event.getParticipantLimit() > 0 && event.getConfirmedRequests() >= event.getParticipantLimit()) {
-            throw new ConflictException("Participation limit on event reached");
+        if (requestRepository.existsByRequesterIdAndEventId(userId, eventId)) {
+            throw new ForbiddenException("Request is already exist.");
+        }
+        if (userId.equals(event.getInitiator().getId())) {
+            throw new ForbiddenException("Initiator can't send request to his own event.");
+        }
+        if (!event.getState().equals(RequestState.PUBLISHED)) {
+            throw new ForbiddenException("Participation is possible only in published event.");
+        }
+        if (event.getParticipantLimit() != 0 && event.getParticipantLimit() <=
+                requestRepository.countByEventIdAndStatus(eventId, CONFIRMED)) {
+            throw new ForbiddenException("Participant limit has been reached.");
         }
 
-        Request participationRequest = new Request();
-        participationRequest.setRequester(user);
-        participationRequest.setEvent(event);
-        RequestState status = (!event.getRequestModeration() || event.getParticipantLimit() == 0) ?
-                RequestState.CONFIRMED : RequestState.PENDING;
-        participationRequest.setStatus(status.toString());
-        //participationRequest.setCreated(Instant.now());
+        Request request = new Request();
+        request.setCreated(LocalDateTime.now());
+        request.setEvent(event);
+        request.setRequester(user);
 
-        participationRequest = requestRepository.save(participationRequest);
-        if (status == RequestState.CONFIRMED) {
-            event.setConfirmedRequests(event.getConfirmedRequests() + 1);
-            eventRepository.save(event);
+        if (event.getRequestModeration() && event.getParticipantLimit() != 0) {
+            request.setStatus(String.valueOf(PENDING));
+        } else {
+            request.setStatus(String.valueOf(CONFIRMED));
         }
-        return RequestMapper.toDto(participationRequest);
+        return RequestMapper.toDto(requestRepository.save(request));
     }
 
     @Override

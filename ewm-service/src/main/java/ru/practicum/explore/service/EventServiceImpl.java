@@ -94,8 +94,7 @@ public class EventServiceImpl implements EventService {
             event.setEventDate(eventDate);
         }
         if (dto.getLocation() != null) {
-            event.setLocationLon(dto.getLocation().getLon());
-            event.setLocationLat(dto.getLocation().getLat());
+            event.setLocation(checkLocation(LocationMapper.toLocation(dto.getLocation())));
         }
         if (dto.getPaid() != null) {
             event.setPaid(dto.getPaid());
@@ -127,8 +126,7 @@ public class EventServiceImpl implements EventService {
         Event event = EventMapper.toEvent(dto);
         event.setInitiator(user);
         event.setCategory(category);
-        event.setLocationLat(location.getLat());
-        event.setLocationLon(location.getLon());
+        event.setLocation(location);
         event.setCreatedOn(LocalDateTime.now());
         event.setState(PENDING);
         return EventMapper.toEventFullDto(eventRepository.save(event), 0L);
@@ -173,7 +171,7 @@ public class EventServiceImpl implements EventService {
         }
         if (dto.getLocation() != null) {
             Location location = checkLocation(LocationMapper.toLocation(dto.getLocation()));
-            event.setLocation(LocationMapper.toLocationDto(location.getLat(), location.getLon()));
+            event.setLocation(location);
         }
         if (dto.getPaid() != null) {
             event.setPaid(dto.getPaid());
