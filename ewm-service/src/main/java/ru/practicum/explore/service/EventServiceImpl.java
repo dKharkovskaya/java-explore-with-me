@@ -11,9 +11,13 @@ import ru.practicum.explore.dto.event.*;
 import ru.practicum.explore.dto.request.EventRequestStatusUpdateRequest;
 import ru.practicum.explore.dto.request.EventRequestStatusUpdateResult;
 import ru.practicum.explore.dto.request.ParticipationRequestDto;
+import ru.practicum.explore.enums.RequestState;
+import ru.practicum.explore.enums.StateActionAdmin;
 import ru.practicum.explore.error.exception.ConflictException;
+import ru.practicum.explore.error.exception.ForbiddenException;
 import ru.practicum.explore.error.exception.NotFoundException;
 import ru.practicum.explore.error.exception.ValidationException;
+import ru.practicum.explore.mapper.CategoryMapper;
 import ru.practicum.explore.mapper.EventMapper;
 import ru.practicum.explore.mapper.LocationMapper;
 import ru.practicum.explore.mapper.RequestMapper;
@@ -27,7 +31,9 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-import static ru.practicum.explore.enums.RequestState.PENDING;
+import static ru.practicum.explore.enums.RequestState.*;
+import static ru.practicum.explore.enums.StateActionAdmin.PUBLISH_EVENT;
+import static ru.practicum.explore.enums.StateActionAdmin.REJECT_EVENT;
 
 @Service
 @RequiredArgsConstructor
@@ -52,7 +58,57 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public EventFullDto updateEventByAdmin(Long eventId, UpdateEventAdminRequest dto) {
-        return null;
+        Event event = getEvent(eventId);
+        if (dto.getStateAction() != null) {
+            StateActionAdmin stateAction = StateActionAdmin.valueOf(dto.getStateAction());
+            if (!event.getState().equals(PENDING) && stateAction.equals(PUBLISH_EVENT)) {
+                throw new ForbiddenException("Event can't be published because it's not pending");
+            }
+            if (event.getState().equals(PUBLISHED) && stateAction.equals(REJECT_EVENT)) {
+                throw new ForbiddenException("Event can't be rejected because it's already published.");
+            }
+            if (stateAction.equals(PUBLISH_EVENT)) {
+                event.setState(PUBLISHED);
+                event.setPublishedOn(LocalDateTime.now());
+            } else if (stateAction.equals(REJECT_EVENT)) {
+                event.setState(RequestState.CANCELED);
+            }
+        }
+        String annotation = dto.getAnnotation();
+        if (annotation != null && !annotation.isBlank()) {
+            event.setAnnotation(annotation);
+        }
+        if (dto.getCategory() != null) {
+            event.setCategory(CategoryMapper.toCategory(categoryService.getCategoryById(dto.getCategory())));
+        }
+        String description = dto.getDescription();
+        if (description != null && !description.isBlank()) {
+            event.setDescription(description);
+        }
+        LocalDateTime eventDate = dto.getEventDate();
+        if (eventDate != null) {
+            checkActualTime(eventDate);
+            event.setEventDate(eventDate);
+        }
+        if (dto.getLocation() != null) {
+            event.setLocationLon(dto.getLocation().getLon());
+            event.setLocationLat(dto.getLocation().getLat());
+        }
+        if (dto.getPaid() != null) {
+            event.setPaid(dto.getPaid());
+        }
+        if (dto.getParticipantLimit() != null) {
+            event.setParticipantLimit(dto.getParticipantLimit());
+        }
+        if (dto.getRequestModeration() != null) {
+            event.setRequestModeration(dto.getRequestModeration());
+        }
+        String title = dto.getTitle();
+        if (title != null && !title.isBlank()) {
+            event.setTitle(title);
+        }
+        return EventMapper.toEventFullDto(eventRepository.save(event),
+                requestRepository.countByEventIdAndStatus(eventId, CONFIRMED));
     }
 
 
@@ -146,4 +202,10 @@ public class EventServiceImpl implements EventService {
             return locationRepository.save(location);
         }
     }
+
+    private Event getEvent(Long eventId) {
+        return eventRepository.findById(eventId).orElseThrow(() ->
+                new NotFoundException("Event with id=" + eventId + " was not found"));
+    }
+
 }
