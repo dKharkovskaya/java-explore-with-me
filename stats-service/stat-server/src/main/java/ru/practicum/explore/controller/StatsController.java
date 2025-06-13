@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.explore.StatsDtoInput;
 import ru.practicum.explore.StatsDtoOutput;
+import ru.practicum.explore.error.exception.BadRequest;
 import ru.practicum.explore.mapper.StatsMapper;
 import ru.practicum.explore.model.Stats;
 import ru.practicum.explore.service.StatsService;
@@ -38,7 +39,7 @@ public class StatsController {
             @RequestParam(required = false) List<String> uris,
             @RequestParam(defaultValue = "false") Boolean unique) {
         if (start.isAfter(end)) {
-            throw new IllegalArgumentException("Параметр start должен быть раньше end");
+            throw new BadRequest("Параметр start должен быть раньше end");
         }
         if (uris == null || uris.isEmpty()) {
             return unique ?
