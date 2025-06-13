@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.client.StatsClient;
 
 import ru.practicum.explore.StatsDtoInput;
+import ru.practicum.explore.StatsDtoOutput;
 import ru.practicum.explore.dto.event.*;
 import ru.practicum.explore.dto.request.RequestDto;
 import ru.practicum.explore.enums.RequestState;
@@ -40,6 +41,7 @@ public class EventServiceImpl implements EventService {
     private final StatsClient statsBaseClient;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
+    private final LocationRepository locationRepository;
 
     @Override
     public List<EventDto> getAllEvents(List<Long> users, List<String> states, List<Long> categories,
@@ -125,12 +127,17 @@ public class EventServiceImpl implements EventService {
     public EventDto createEvent(Long userId, NewEventDto newEventDto) {
         User user = userRepository.findById(userId).orElseThrow(NotFoundException::new);
         Category category = categoryRepository.findById(newEventDto.getCategory()).orElseThrow();
+        Location location = new Location();
+        location.setLat(newEventDto.getLocation().getLat());
+        location.setLon(newEventDto.getLocation().getLon());
+        location = locationRepository.save(location); // сохраняем сначала
         Event event = EventMapper.toEvent(newEventDto);
         if (LocalDateTime.now().isAfter(newEventDto.getEventDate())) {
             throw new NotFoundException("Время события не может быть прошедшее! dateTime: " + newEventDto.getEventDate());
         }
         event.setInitiator(user);
         event.setCategory(category);
+        event.setLocation(location);
         Event result = eventRepository.save(event);
         return EventMapper.toEventDto(result);
     }
@@ -250,8 +257,7 @@ public class EventServiceImpl implements EventService {
             }
         }
         if (!isNull(request.getLocation())) {
-            event.setLat(request.getLocation().getLat());
-            event.setLon(request.getLocation().getLon());
+            event.setLocation(new Location(request.getLocation().getLat(), request.getLocation().getLon()));
         }
         if (!isNull(request.getPaid())) {
             event.setPaid(request.getPaid());
@@ -285,8 +291,7 @@ public class EventServiceImpl implements EventService {
             event.setPaid(request.getPaid());
         }
         if (!isNull(request.getLocation())) {
-            event.setLat(request.getLocation().getLat());
-            event.setLon(request.getLocation().getLon());
+            event.setLocation(new Location(request.getLocation().getLat(), request.getLocation().getLon()));
         }
         if (!isNull(request.getRequestModeration())) {
             event.setRequestModeration(request.getRequestModeration());
@@ -314,7 +319,7 @@ public class EventServiceImpl implements EventService {
 
     private void sendStatistic(HttpServletRequest httpRequest) {
         StatsDtoInput statsDtoInput = new StatsDtoInput("ewm-service", httpRequest.getRequestURI(), httpRequest.getLocalAddr(), LocalDateTime.now().toString());
-        //statsBaseClient.hit(statsDtoInput);
+        statsBaseClient.hit(statsDtoInput);
     }
 
     public void getStatistics(List<Event> events) {
@@ -322,7 +327,7 @@ public class EventServiceImpl implements EventService {
         List<String> uris = events.stream()
                 .map(event -> String.format("/events/%s", event.getId()))
                 .collect(Collectors.toList());
-        /*List<StatsDtoOutput> stats = statsBaseClient.getStats(LocalDateTime.parse("2000-01-01 00:00:00", formatter), LocalDateTime.parse("2100-01-01 00:00:00",formatter),
+        List<StatsDtoOutput> stats = statsBaseClient.getStats(LocalDateTime.parse("2000-01-01 00:00:00", formatter), LocalDateTime.parse("2100-01-01 00:00:00", formatter),
                 uris, true);
         for (Event event : events) {
             StatsDtoOutput currentViewStats = stats.stream()
@@ -330,7 +335,8 @@ public class EventServiceImpl implements EventService {
                     .findFirst()
                     .orElse(null);
             Long views = (currentViewStats != null) ? currentViewStats.getHits() : 0;
-            event.setViews(views.intValue());*/
+            event.setViews(views.intValue());
+        }
     }
 }
 

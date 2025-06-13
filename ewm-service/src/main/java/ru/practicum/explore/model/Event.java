@@ -62,9 +62,6 @@ public class Event {
 
     private Integer views;
 
-    private float lon;
-    private float lat;
-
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "event", fetch = FetchType.EAGER)
     private List<Request> requests;
 }
