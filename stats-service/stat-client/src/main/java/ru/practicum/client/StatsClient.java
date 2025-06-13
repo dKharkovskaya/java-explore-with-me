@@ -1,6 +1,7 @@
 package ru.practicum.client;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -22,11 +23,18 @@ public class StatsClient {
     private final RestTemplate restTemplate;
 
     @Value("${stats-server.url}")
-    private String statsServerUrl; // должно быть "http://localhost:9090"
+    private String statsServerUrl;
+
+    @Autowired
+    public StatsClient(
+            @Value("${stats-server.url}") String serviceUrl,
+            RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
 
     public void hit(StatsDtoInput dto) {
         HttpEntity<StatsDtoInput> requestEntity = new HttpEntity<>(dto);
-        restTemplate.exchange(statsServerUrl + "/hit", HttpMethod.POST, requestEntity, String.class);
+        restTemplate.postForObject(statsServerUrl + "/hit", requestEntity, String.class);
     }
 
     // Получает статистику за период
