@@ -1,5 +1,6 @@
 package ru.practicum.explore.dto.event;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import ru.practicum.explore.dto.category.CategoryDto;
 import ru.practicum.explore.dto.user.UserShortDto;
 
@@ -20,6 +21,7 @@ public class EventShortDto {
 
     private Long confirmedRequests;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime eventDate;
 
     private UserShortDto initiator;

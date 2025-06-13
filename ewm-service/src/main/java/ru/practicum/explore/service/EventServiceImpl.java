@@ -15,6 +15,7 @@ import ru.practicum.explore.dto.request.RequestDto;
 import ru.practicum.explore.enums.RequestState;
 import ru.practicum.explore.enums.Sort;
 import ru.practicum.explore.error.exception.BadRequestException;
+import ru.practicum.explore.error.exception.ConflictException;
 import ru.practicum.explore.error.exception.NotFoundException;
 import ru.practicum.explore.mapper.EventMapper;
 import ru.practicum.explore.mapper.RequestMapper;
@@ -106,7 +107,7 @@ public class EventServiceImpl implements EventService {
             getStatistics(List.of(event));
             return EventMapper.toEventDto(event);
         }
-        throw new NoSuchElementException("Не найдено опубликованное событие с id " + id);
+        throw new NotFoundException("Не найдено опубликованное событие с id " + id);
     }
 
     @Override
@@ -154,7 +155,7 @@ public class EventServiceImpl implements EventService {
         if (!event.getState().equals(PUBLISHED)) {
             handleRequestData(eventRequest, event);
         } else {
-            throw new NotFoundException("Запрос не соответствует требованиям ");
+            throw new ConflictException("Запрос не соответствует требованиям ");
         }
         return EventMapper.toEventDto(event);
     }
@@ -182,7 +183,7 @@ public class EventServiceImpl implements EventService {
         boolean isPending = requests.stream()
                 .allMatch(element -> element.getStatus().equals(RequestState.PENDING));
         if (!isPending) {
-            throw new NotFoundException("В выборке не должно быть запросов кроме статуса PENDING");
+            throw new ConflictException("В выборке не должно быть запросов кроме статуса PENDING");
         }
         Integer participantLimit = event.getParticipantLimit();
         if (participantLimit == 0 || !event.getRequestModeration()) {
@@ -288,7 +289,14 @@ public class EventServiceImpl implements EventService {
             event.setPaid(request.getPaid());
         }
         if (!isNull(request.getLocation())) {
-            event.setLocation(new Location(request.getLocation().getLat(), request.getLocation().getLon()));
+            Location location = new Location();
+            location.setLat(request.getLocation().getLat());
+            location.setLon(request.getLocation().getLon());
+
+            // Сохраняем location перед привязкой к событию
+            location = locationRepository.save(location);
+
+            event.setLocation(location);
         }
         if (!isNull(request.getRequestModeration())) {
             event.setRequestModeration(request.getRequestModeration());
@@ -309,29 +317,43 @@ public class EventServiceImpl implements EventService {
             if (event.getState().equals(PENDING)) {
                 event.setState(request.getStateAction().equals(PUBLISH_EVENT) ? PUBLISHED : CANCELED);
             } else {
-                throw new NotFoundException("Событие уже опубликовано");
+                throw new ConflictException("Событие уже опубликовано");
             }
         }
     }
 
     private void sendStatistic(HttpServletRequest httpRequest) {
-        StatsDtoInput statsDtoInput = new StatsDtoInput("ewm-service", httpRequest.getRequestURI(), httpRequest.getLocalAddr(), LocalDateTime.now().toString());
-        statsBaseClient.hit(statsDtoInput);
+        StatsDtoInput dto = new StatsDtoInput();
+        dto.setApp("ewm-service");
+        dto.setUri(httpRequest.getRequestURI());
+        dto.setIp(httpRequest.getLocalAddr());
+        dto.setTimestamp(LocalDateTime.now().format(StatsDtoInput.DATE_TIME_FORMATTER));
+        statsBaseClient.hit(dto);
     }
 
     public void getStatistics(List<Event> events) {
+        if (events == null || events.isEmpty()) return;
+
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
         List<String> uris = events.stream()
+                .filter(event -> event.getId() != null)
                 .map(event -> String.format("/events/%s", event.getId()))
-                .collect(Collectors.toList());
-        List<StatsDtoOutput> stats = statsBaseClient.getStats(LocalDateTime.parse("2000-01-01 00:00:00", formatter), LocalDateTime.parse("2100-01-01 00:00:00", formatter),
-                uris, true);
+                .toList();
+
+        if (uris.isEmpty()) return;
+
+        LocalDateTime defaultStart = LocalDateTime.parse("2000-01-01 00:00:00", formatter);
+        LocalDateTime defaultEnd = LocalDateTime.parse("2100-01-01 00:00:00", formatter);
+
+        List<StatsDtoOutput> stats = statsBaseClient.getStats(defaultStart, defaultEnd, uris, true);
+
         for (Event event : events) {
-            StatsDtoOutput currentViewStats = stats.stream()
-                    .filter(statsDto -> statsDto.getUri().equals(String.format("/events/%s", event.getId())))
-                    .findFirst()
-                    .orElse(null);
-            Long views = (currentViewStats != null) ? currentViewStats.getHits() : 0;
+            Optional<StatsDtoOutput> currentViewStats = stats.stream()
+                    .filter(dto -> dto.getUri().equals("/events/" + event.getId()))
+                    .findFirst();
+
+            Long views = currentViewStats.map(StatsDtoOutput::getHits).orElse(0L);
             event.setViews(views.intValue());
         }
     }

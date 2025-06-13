@@ -10,12 +10,12 @@ public class StatsMapper {
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    public static Stats toStats(StatsDtoInput dto) {
+    public static Stats toStats(StatsDtoInput input) {
         return Stats.builder()
-                .app(dto.getApp())
-                .uri(dto.getUri())
-                .ip(dto.getIp())
-                .timestamp(LocalDateTime.parse(dto.getTimestamp(), FORMATTER))
+                .app(input.getApp())
+                .uri(input.getUri())
+                .ip(input.getIp())
+                .timestamp(LocalDateTime.parse(input.getTimestamp(), StatsDtoInput.DATE_TIME_FORMATTER))
                 .build();
     }
 }

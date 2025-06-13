@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.explore.dto.request.RequestDto;
 import ru.practicum.explore.enums.RequestState;
 import ru.practicum.explore.enums.State;
+import ru.practicum.explore.error.exception.ConflictException;
 import ru.practicum.explore.error.exception.NotFoundException;
 import ru.practicum.explore.mapper.RequestMapper;
 import ru.practicum.explore.model.Event;
@@ -39,6 +40,10 @@ public class RequestServiceImpl implements RequestService {
     @Transactional
     @Override
     public RequestDto createRequest(Long userId, Long eventId) {
+        if (requestRepository.existsByRequesterIdAndEventId(userId, eventId)) {
+            throw new ConflictException("Participation request for requester ID " + userId +
+                    " and event ID " + eventId + " already exists.");
+        }
         User user = userRepository.findById(userId).orElseThrow(NotFoundException::new);
         Event event = eventRepository.findById(eventId).orElseThrow();
         checkRequestData(event, user);
@@ -75,11 +80,11 @@ public class RequestServiceImpl implements RequestService {
                 .filter(it -> it.getStatus().equals(RequestState.CONFIRMED))
                 .count();
         if (user.equals(event.getInitiator())) {
-            throw new NotFoundException("Создатель события не может делать запрос");
+            throw new ConflictException("Создатель события не может делать запрос");
         } else if (!event.getState().equals(State.PUBLISHED)) {
-            throw new NotFoundException("Событие должно быть опубликовано");
+            throw new ConflictException("Событие должно быть опубликовано");
         } else if ((event.getParticipantLimit() > 0 && event.getParticipantLimit() <= count)) {
-            throw new NotFoundException("Достигнут лимит по заявкам на данное событие");
+            throw new ConflictException("Достигнут лимит по заявкам на данное событие");
         }
     }
 }
