@@ -30,7 +30,7 @@ public class StatsClient {
 
     public List<StatsDtoOutput> getStats(LocalDateTime start, LocalDateTime end,
                                          List<String> uris, Boolean unique) {
-        String uri = "http://localhost:9090/stats";
+        String uri = "http://stats-server-container:9090/stats";
 
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(uri)
                 .queryParam("start", "{start}")

@@ -22,4 +22,4 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
 stats-server:
-  url: http://localhost:9090
+  url: http://stats-server-container:9090
