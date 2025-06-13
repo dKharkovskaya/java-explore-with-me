@@ -23,6 +23,7 @@ public class Request {
     private LocalDateTime created;
 
     @Column(name = "status", nullable = false)
+    @Enumerated(EnumType.STRING)
     private RequestState status; // PENDING, CONFIRMED, REJECTED
 
     @ManyToOne

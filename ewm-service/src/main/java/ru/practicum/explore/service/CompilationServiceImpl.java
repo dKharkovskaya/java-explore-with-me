@@ -47,8 +47,13 @@ public class CompilationServiceImpl implements CompilationService {
         if (!isNull(updateCompilationDto.getEvents())) {
             compilation.setEvents(eventRepository.findAllById(updateCompilationDto.getEvents()));
         }
-        compilation.setPinned(updateCompilationDto.getPinned());
-        compilation.setTitle(updateCompilationDto.getTitle());
+        if (updateCompilationDto.getPinned() != null) {
+            compilation.setPinned(updateCompilationDto.getPinned());
+        }
+
+        if (updateCompilationDto.getTitle() != null && !updateCompilationDto.getTitle().isBlank()) {
+            compilation.setTitle(updateCompilationDto.getTitle());
+        }
         return CompilationMapper.toCompilationDto(compilation);
     }
 

@@ -1,6 +1,8 @@
 package ru.practicum.explore.dto.event;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import ru.practicum.explore.dto.user.UserShortDto;
 import ru.practicum.explore.dto.category.CategoryDto;
 
@@ -44,6 +46,7 @@ public class EventDto {
 
     private Boolean requestModeration;
 
+    @Enumerated(EnumType.STRING)
     private State state;
 
     private String title;

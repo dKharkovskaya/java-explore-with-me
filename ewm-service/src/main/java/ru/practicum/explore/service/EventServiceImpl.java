@@ -2,6 +2,8 @@ package ru.practicum.explore.service;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.client.StatsClient;
@@ -12,6 +14,7 @@ import ru.practicum.explore.dto.event.*;
 import ru.practicum.explore.dto.request.RequestDto;
 import ru.practicum.explore.enums.RequestState;
 import ru.practicum.explore.enums.Sort;
+import ru.practicum.explore.error.exception.BadRequestException;
 import ru.practicum.explore.error.exception.NotFoundException;
 import ru.practicum.explore.mapper.EventMapper;
 import ru.practicum.explore.mapper.RequestMapper;
@@ -46,10 +49,9 @@ public class EventServiceImpl implements EventService {
     @Override
     public List<EventDto> getAllEvents(List<Long> users, List<String> states, List<Long> categories,
                                        LocalDateTime rangeStart, LocalDateTime rangeEnd, Integer from, Integer size) {
-        List<Event> events = eventRepository.getEventsWithFilter(users, states, categories, rangeStart, rangeEnd);
-        return events.stream()
-                .skip(from)
-                .limit(size)
+        Pageable page = PageRequest.of(from / size, size);
+        return eventRepository.getAllEventsByAdmin(users, states, categories, rangeStart, rangeEnd, page).stream()
+                .toList().stream()
                 .map(EventMapper::toEventDto)
                 .toList();
     }
@@ -66,37 +68,33 @@ public class EventServiceImpl implements EventService {
     public List<EventShortDto> getPublicEvents(HttpServletRequest httpRequest, String text, List<Long> categories,
                                                Boolean paid, LocalDateTime rangeStart, LocalDateTime rangeEnd, Boolean onlyAvailable,
                                                Sort sort, Integer from, Integer size) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        LocalDateTime startDateTime;
-        LocalDateTime endDateTime;
-        try {
-            startDateTime = isNull(rangeStart) ? LocalDateTime.now() : rangeStart;
-            endDateTime = isNull(rangeEnd) ? null : rangeEnd;
-            if (endDateTime != null && startDateTime.isAfter(endDateTime)) {
-                throw new NotFoundException("Дата окончания события не может быть раньше даты начала");
-            }
-        } catch (DateTimeParseException e) {
-            throw new NotFoundException("Неверный формат даты. Ожидаемый формат: yyyy-MM-dd HH:mm:ss");
+        if (rangeStart != null && rangeEnd != null && rangeEnd.isBefore(rangeStart)) {
+            throw new BadRequestException("Дата окончания поиска не может быть раньше даты начала");
         }
-        text = isNull(text) ? null : text.toLowerCase();
-        List<Event> events = eventRepository.getPublicEventsWithFilter(PUBLISHED, text, paid, rangeStart,
-                rangeEnd);
-        List<EventShortDto> result = events.stream()
-                .filter(event -> {
-                    if (onlyAvailable) {
-                        long confirmedRequests = event.getRequests().stream()
-                                .filter(request -> request.getStatus().equals(CONFIRMED))
-                                .count();
-                        return event.getParticipantLimit() > confirmedRequests;
-                    }
-                    return true;
-                })
-                .skip(from)
-                .limit(size)
+        sendStatistic(httpRequest);
+        LocalDateTime start = rangeStart != null ? rangeStart : LocalDateTime.now();
+        LocalDateTime end = rangeEnd != null ? rangeEnd : LocalDateTime.now().plusYears(10);
+        Pageable page = PageRequest.of(from / size, size);
+        List<Event> events = eventRepository.getPublicEvents(text, categories, paid, start, end, page);
+        if (events.isEmpty()) {
+            return Collections.emptyList();
+        }
+        if (onlyAvailable) {
+            events = events.stream()
+                    .filter(event -> event.getParticipantLimit() > event.getParticipantLimit())
+                    .toList();
+        }
+        if (sort != null) {
+            validateSort(sort);
+            if (sort.equals(Sort.EVENT_DATE)) {
+                events.sort(Comparator.comparing(Event::getEventDate));
+            } else {
+                events.sort(Comparator.comparing(Event::getViews));
+            }
+        }
+        return events.stream()
                 .map(EventMapper::toEventShortDto)
                 .toList();
-        sendStatistic(httpRequest);
-        return result;
     }
 
 
@@ -338,5 +336,12 @@ public class EventServiceImpl implements EventService {
             event.setViews(views.intValue());
         }
     }
+
+    public void validateSort(Sort sort) {
+        if (!Arrays.asList(Sort.values()).contains(sort)) {
+            throw new NotFoundException("Такого параметра сортировки не существует");
+        }
+    }
+
 }
 

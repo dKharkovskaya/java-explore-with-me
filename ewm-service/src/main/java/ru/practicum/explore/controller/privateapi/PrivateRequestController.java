@@ -26,7 +26,6 @@ public class PrivateRequestController {
     @PostMapping("/{userId}/requests")
     public RequestDto createRequest(@PathVariable Long userId,
                                     @RequestParam Long eventId) {
-        log.info("Получен запрос на участии в событии userId:{},eventId:{}", userId, eventId);
         return requestService.createRequest(userId, eventId);
     }
 

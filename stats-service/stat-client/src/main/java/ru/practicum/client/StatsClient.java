@@ -1,20 +1,19 @@
 package ru.practicum.client;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import ru.practicum.explore.StatsDtoInput;
 import ru.practicum.explore.StatsDtoOutput;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -22,22 +21,17 @@ public class StatsClient {
 
     private final RestTemplate restTemplate;
 
-    private final String statsServerUrl;
+    @Value("${stats-server.url}")
+    private String statsServerUrl; // должно быть "http://localhost:9090"
 
-    @Autowired
-    public StatsClient(@Value("${stats-server.url}") String serviceUrl, RestTemplateBuilder builder) {
-        this.statsServerUrl = serviceUrl;
-        this.restTemplate = builder.rootUri(serviceUrl).build();
-    }
-
-    // Отправляет информацию о посещении
     public void hit(StatsDtoInput dto) {
         HttpEntity<StatsDtoInput> requestEntity = new HttpEntity<>(dto);
-        restTemplate.exchange(statsServerUrl + "/hit", HttpMethod.POST, requestEntity, String.class).getBody();
+        restTemplate.exchange(statsServerUrl + "/hit", HttpMethod.POST, requestEntity, String.class);
     }
 
     // Получает статистику за период
-    public List<StatsDtoOutput> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
+    public List<StatsDtoOutput> getStats(LocalDateTime start, LocalDateTime end,
+                                         List<String> uris, Boolean unique) {
         String uri = "/stats?start={start}&end={end}&unique={unique}";
 
         if (uris != null && !uris.isEmpty()) {
@@ -48,14 +42,12 @@ public class StatsClient {
             uri = sb.toString();
         }
 
-        ResponseEntity<StatsDtoOutput[]> response = restTemplate.getForEntity(
+        return Arrays.asList(Objects.requireNonNull(restTemplate.getForObject(
                 uri,
                 StatsDtoOutput[].class,
-                start,
-                end,
+                start.format(DateTimeFormatter.ISO_DATE_TIME),
+                end.format(DateTimeFormatter.ISO_DATE_TIME),
                 unique
-        );
-
-        return Arrays.asList(response.getBody());
+        )));
     }
 }
