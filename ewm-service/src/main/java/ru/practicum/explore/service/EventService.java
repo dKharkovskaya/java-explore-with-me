@@ -1,35 +1,36 @@
 package ru.practicum.explore.service;
 
+import jakarta.servlet.http.HttpServletRequest;
 import ru.practicum.explore.dto.event.*;
-import ru.practicum.explore.dto.request.EventRequestStatusUpdateRequest;
-import ru.practicum.explore.dto.request.EventRequestStatusUpdateResult;
-import ru.practicum.explore.dto.request.ParticipationRequestDto;
+import ru.practicum.explore.dto.request.RequestDto;
+import ru.practicum.explore.enums.Sort;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface EventService {
 
-    List<EventFullDto> getAdminEvents(List<Long> users, List<String> states, List<Long> categories,
-                                      String rangeStart, String rangeEnd, int from, int size);
+    List<EventDto> getAllEvents(List<Long> users, List<String> states, List<Long> categories, LocalDateTime rangeStart,
+                                LocalDateTime rangeEnd, Integer from, Integer size);
 
-    EventFullDto updateEventByAdmin(Long eventId, UpdateEventAdminRequest dto);
+    EventDto updateEvent(Long eventId, EventUpdateAdminRequest eventUpdateAdminRequest);
 
-    EventFullDto addEvent(Long userId, NewEventDto dto);
+    List<EventShortDto> getPublicEvents(HttpServletRequest httpRequest, String text, List<Long> categories,
+                                        Boolean paid, LocalDateTime rangeStart, LocalDateTime rangeEnd, Boolean onlyAvailable,
+                                        Sort sort, Integer from, Integer size);
 
-    List<EventShortDto> getUserEvents(Long userId, int from, int size);
+    EventDto getEventById(Long id, HttpServletRequest httpRequest);
 
-    EventFullDto getUserEventById(Long userId, Long eventId);
+    List<EventShortDto> getUsersEvents(Long userId, Integer from, Integer size);
 
-    EventFullDto updateEventByUser(Long userId, Long eventId, UpdateEventUserRequest dto);
+    EventDto createEvent(Long userId, NewEventDto event);
 
-    EventRequestStatusUpdateResult updateEventRequestsPrivate(Long userId, Long eventId, EventRequestStatusUpdateRequest entity);
+    EventDto getFullInformation(Long userId, Long eventId);
 
-    List<ParticipationRequestDto> getRequestsOnEvent(Long userId, Long eventId);
+    EventDto updateUsersEvent(Long userId, Long eventId, EventUpdateUserRequest event);
 
-    // Public API
-    List<EventFullDto> getPublicEvents(String text, List<Long> categories, Boolean paid,
-                                       String rangeStart, String rangeEnd,
-                                       Boolean onlyAvailable, String sort, int from, int size, String uri, Object request);
+    List<RequestDto> getInfoAboutRequests(Long userId, Long eventId);
 
-    EventFullDto getPublicEventById(Long id, String uri, Object request);
+    EventStatusUpdateResult changeRequestStatus(Long userId, Long eventId,
+                                                EventStatusUpdateRequest request);
 }

@@ -3,6 +3,7 @@ package ru.practicum.explore;
 import lombok.*;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Data
@@ -16,11 +17,5 @@ public class StatsDtoInput {
     private String ip;
     private String timestamp; // формат: "yyyy-MM-dd HH:mm:ss"
 
-    public StatsDtoInput(String app, String uri, String ip) {
-        this.app = app;
-        this.uri = uri;
-        this.ip = ip;
-        this.timestamp = DATE_TIME_FORMATTER.format(Instant.now());
-    }
 
 }

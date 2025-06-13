@@ -1,35 +1,43 @@
 package ru.practicum.client;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import ru.practicum.explore.StatsDtoInput;
 import ru.practicum.explore.StatsDtoOutput;
 
-import java.time.Instant;
-import java.time.format.DateTimeFormatter;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class StatsClient {
-    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     private final RestTemplate restTemplate;
 
-    public StatsClient(@Value("${stats.service.url}") String serviceUrl, RestTemplateBuilder builder) {
+    private final String statsServerUrl;
+
+    @Autowired
+    public StatsClient(@Value("${stats-server.url}") String serviceUrl, RestTemplateBuilder builder) {
+        this.statsServerUrl = serviceUrl;
         this.restTemplate = builder.rootUri(serviceUrl).build();
     }
 
     // Отправляет информацию о посещении
     public void hit(StatsDtoInput dto) {
-        restTemplate.postForObject("/hit", dto, Void.class);
+        HttpEntity<StatsDtoInput> requestEntity = new HttpEntity<>(dto);
+        restTemplate.exchange(statsServerUrl + "/hit", HttpMethod.POST, requestEntity, String.class).getBody();
     }
 
     // Получает статистику за период
-    public List<StatsDtoOutput> getStats(Instant start, Instant end, List<String> uris, Boolean unique) {
+    public List<StatsDtoOutput> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
         String uri = "/stats?start={start}&end={end}&unique={unique}";
 
         if (uris != null && !uris.isEmpty()) {

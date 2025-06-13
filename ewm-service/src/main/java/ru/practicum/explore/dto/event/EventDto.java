@@ -7,14 +7,14 @@ import ru.practicum.explore.dto.category.CategoryDto;
 import java.time.LocalDateTime;
 
 import lombok.*;
-import ru.practicum.explore.enums.RequestState;
+import ru.practicum.explore.enums.State;
 import ru.practicum.explore.model.Location;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class EventFullDto {
+public class EventDto {
     private Long id;
 
     private String annotation;
@@ -44,7 +44,9 @@ public class EventFullDto {
 
     private Boolean requestModeration;
 
-    private RequestState state;
+    private State state;
 
     private String title;
+
+    private Integer views;
 }

@@ -2,11 +2,9 @@ package ru.practicum.explore.service;
 
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.explore.dto.user.NewUserRequest;
+import ru.practicum.explore.dto.user.NewUserDto;
 import ru.practicum.explore.dto.user.UserDto;
 import ru.practicum.explore.error.exception.NotFoundException;
 import ru.practicum.explore.mapper.UserMapper;
@@ -14,6 +12,8 @@ import ru.practicum.explore.model.User;
 import ru.practicum.explore.repository.UserRepository;
 
 import java.util.List;
+
+import static java.util.Objects.isNull;
 
 @Service
 @RequiredArgsConstructor
@@ -23,30 +23,36 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
     @Override
-    public UserDto addUser(NewUserRequest dto) {
-        User user = UserMapper.toUser(dto);
-        user = userRepository.save(user);
-        return UserMapper.toDto(user);
+    public List<UserDto> getAllUsers(List<Long> ids, Integer from, Integer size) {
+        if (isNull(ids)) {
+            return userRepository.findAll().stream()
+                    .skip(from)
+                    .limit(size)
+                    .map(UserMapper::toUserDto)
+                    .toList();
+        }
+        return userRepository.findAllById(ids).stream()
+                .skip(from)
+                .limit(size)
+                .map(UserMapper::toUserDto)
+                .toList();
     }
 
+    @Transactional
+    @Override
+    public UserDto createUser(NewUserDto userRequest) {
+        User user = UserMapper.toUser(userRequest);
+        userRepository.save(user);
+        return UserMapper.toUserDto(user);
+    }
+
+    @Transactional
     @Override
     public void deleteUser(Long userId) {
-        userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("Объект не найден"));
-        userRepository.deleteById(userId);
-    }
-
-    @Override
-    public List<UserDto> getUsers(List<Long> ids, int from, int size) {
-        List<User> users;
-        Pageable pageable = PageRequest.of(from, size);
-        if (ids == null || ids.isEmpty()) {
-            users = userRepository.findAll(pageable).getContent();
-        } else {
-            users = userRepository.findAllByIdIn(ids, pageable);
+        boolean exists = userRepository.existsById(userId);
+        if (!exists) {
+            throw new NotFoundException();
         }
-        return users.stream()
-                .map(UserMapper::toDto)
-                .toList();
+        userRepository.deleteById(userId);
     }
 }

@@ -21,6 +21,5 @@ spring:
       use-new-id-generator-mappings: false
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
-stats:
-  service:
-    url: http://localhost:9090
+stats-server:
+  url: http://localhost:9090

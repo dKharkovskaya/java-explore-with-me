@@ -1,8 +1,9 @@
 package ru.practicum.explore.model;
 
+import jakarta.persistence.*;
 import lombok.*;
+import ru.practicum.explore.enums.RequestState;
 
-import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
@@ -22,7 +23,7 @@ public class Request {
     private LocalDateTime created;
 
     @Column(name = "status", nullable = false)
-    private String status; // PENDING, CONFIRMED, REJECTED
+    private RequestState status; // PENDING, CONFIRMED, REJECTED
 
     @ManyToOne
     @JoinColumn(name = "requester_id", nullable = false)

@@ -1,14 +1,14 @@
 package ru.practicum.explore.service;
 
 import ru.practicum.explore.dto.user.UserDto;
-import ru.practicum.explore.dto.user.NewUserRequest;
+import ru.practicum.explore.dto.user.NewUserDto;
 
 import java.util.List;
 
 public interface UserService {
-    UserDto addUser(NewUserRequest dto);
+    UserDto createUser(NewUserDto userRequest);
+
+    List<UserDto> getAllUsers(List<Long> ids, Integer from, Integer size);
 
     void deleteUser(Long userId);
-
-    List<UserDto> getUsers(List<Long> ids, int from, int size);
 }

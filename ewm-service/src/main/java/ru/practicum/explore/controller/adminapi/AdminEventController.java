@@ -1,44 +1,43 @@
 package ru.practicum.explore.controller.adminapi;
 
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.validation.annotation.Validated;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.explore.dto.event.EventFullDto;
-import ru.practicum.explore.dto.event.UpdateEventAdminRequest;
+import ru.practicum.explore.dto.event.EventDto;
+import ru.practicum.explore.dto.event.EventUpdateAdminRequest;
 import ru.practicum.explore.service.EventService;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Positive;
-import javax.validation.constraints.PositiveOrZero;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
 @RequestMapping("/admin/events")
+@Slf4j
 @RequiredArgsConstructor
-@Validated
 public class AdminEventController {
 
     private final EventService eventService;
 
     @GetMapping
-    @ResponseStatus(HttpStatus.OK)
-    public List<EventFullDto> getAdminEvents(
-            @RequestParam(name = "users", required = false) List<@Positive Long> usersIds,
-            @RequestParam(name = "states", required = false) List<String> states,
-            @RequestParam(name = "categories", required = false) List<@Positive Long> categoriesIds,
-            @RequestParam(name = "rangeStart", required = false) String rangeStartString,
-            @RequestParam(name = "rangeEnd", required = false) String rangeEndString,
-            @RequestParam(name = "from", required = false, defaultValue = "0") @PositiveOrZero Integer from,
-            @RequestParam(name = "size", required = false, defaultValue = "10") @Positive Integer size) {
-        return eventService.getAdminEvents(usersIds, states, categoriesIds, rangeStartString, rangeEndString, from, size);
+    public List<EventDto> getAllEvents(@RequestParam(required = false) List<Long> users,
+                                       @RequestParam(required = false) List<String> states,
+                                       @RequestParam(required = false) List<Long> categories,
+                                       @RequestParam(required = false) LocalDateTime rangeStart,
+                                       @RequestParam(required = false) LocalDateTime rangeEnd,
+                                       @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
+                                       @RequestParam(defaultValue = "10") @Positive Integer size) {
+        return eventService.getAllEvents(users, states, categories, rangeStart, rangeEnd, from, size);
     }
 
     @PatchMapping("/{eventId}")
-    @ResponseStatus(HttpStatus.OK)
-    public EventFullDto updateEventByAdmin(@PathVariable @Positive Long eventId,
-                                    @RequestBody @Valid UpdateEventAdminRequest updateEventAdminRequest) {
-        return eventService.updateEventByAdmin(eventId, updateEventAdminRequest);
+    public EventDto updateEvent(@PathVariable @Min(1) Long eventId,
+                                @RequestBody @Valid EventUpdateAdminRequest eventUpdateAdminRequest) {
+        EventDto eventDto = eventService.updateEvent(eventId, eventUpdateAdminRequest);
+        return eventDto;
     }
 }

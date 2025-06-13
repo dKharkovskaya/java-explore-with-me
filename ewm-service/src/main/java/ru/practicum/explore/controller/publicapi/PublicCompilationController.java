@@ -1,32 +1,33 @@
 package ru.practicum.explore.controller.publicapi;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.validation.annotation.Validated;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.explore.dto.compilation.CompilationDto;
 import ru.practicum.explore.service.CompilationService;
 
-import javax.validation.constraints.Positive;
-import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
-@Validated
 @RestController
 @RequestMapping("/compilations")
+@Slf4j
 @RequiredArgsConstructor
 public class PublicCompilationController {
 
     private final CompilationService compilationService;
 
     @GetMapping
-    public List<CompilationDto> getCompilations(@RequestParam(name = "pinned", required = false) Boolean pinned,
-                                                @RequestParam(name = "from", required = false, defaultValue = "0") @PositiveOrZero Integer from,
-                                                @RequestParam(name = "size", required = false, defaultValue = "10") @Positive Integer size) {
-        return compilationService.getCompilations(pinned, from, size);
+    @ResponseStatus(HttpStatus.OK)
+    public List<CompilationDto> getAllEvents(@RequestParam(required = false) Boolean pinned,
+                                             @RequestParam(required = false, defaultValue = "0") Integer from,
+                                             @RequestParam(required = false, defaultValue = "10") Integer size) {
+        log.info("Получен запрос на получение списка всех событий.");
+        return compilationService.getAllEvents(pinned, from, size);
     }
 
-    @GetMapping("/{comp-id}")
-    public CompilationDto getCompilationById(@PathVariable("comp-id") @Positive Long compilationId) {
-        return compilationService.getCompilationById(compilationId);
+    @GetMapping("/{compId}")
+    public CompilationDto getCompilationById(@PathVariable Long compId) {
+        return compilationService.getCompilationById(compId);
     }
 }

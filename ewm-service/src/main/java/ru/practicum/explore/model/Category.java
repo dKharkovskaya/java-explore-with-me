@@ -1,8 +1,8 @@
 package ru.practicum.explore.model;
 
+import jakarta.persistence.*;
 import lombok.*;
 
-import javax.persistence.*;
 
 @Entity
 @Table(name = "categories")
@@ -18,8 +18,4 @@ public class Category {
 
     @Column(name = "name", nullable = false, unique = true)
     private String name;
-
-    public Category(String name) {
-        this.name = name;
-    }
 }

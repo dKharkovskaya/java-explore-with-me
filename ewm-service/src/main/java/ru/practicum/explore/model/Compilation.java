@@ -1,8 +1,8 @@
 package ru.practicum.explore.model;
 
+import jakarta.persistence.*;
 import lombok.*;
 
-import javax.persistence.*;
 import java.util.List;
 
 @Entity
@@ -30,10 +30,5 @@ public class Compilation {
             inverseJoinColumns = @JoinColumn(name = "event_id")
     )
     private List<Event> events;
-
-    public Compilation(String title, Boolean pinned) {
-        this.title = title;
-        this.pinned = pinned;
-    }
 
 }

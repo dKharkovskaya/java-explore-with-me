@@ -1,8 +1,8 @@
 package ru.practicum.explore.model;
 
+import jakarta.persistence.Embeddable;
 import lombok.*;
 
-import javax.persistence.Embeddable;
 import java.io.Serializable;
 
 @Embeddable

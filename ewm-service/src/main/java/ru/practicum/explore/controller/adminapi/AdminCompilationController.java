@@ -1,16 +1,15 @@
 package ru.practicum.explore.controller.adminapi;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.explore.dto.compilation.CompilationDto;
 import ru.practicum.explore.dto.compilation.NewCompilationDto;
-import ru.practicum.explore.dto.compilation.UpdateCompilationRequest;
+import ru.practicum.explore.dto.compilation.UpdateCompilationDto;
 import ru.practicum.explore.service.CompilationService;
-
-import javax.validation.Valid;
-import javax.validation.constraints.Positive;
 
 @RestController
 @RequestMapping("/admin/compilations")
@@ -21,21 +20,21 @@ public class AdminCompilationController {
     private final CompilationService compilationService;
 
     @PostMapping
-    @ResponseStatus(value = HttpStatus.CREATED)
-    public CompilationDto addCompilation(@RequestBody @Valid NewCompilationDto newCompilationDto) {
-        return compilationService.addCompilation(newCompilationDto);
+    @ResponseStatus(HttpStatus.CREATED)
+    public CompilationDto createCompilation(@RequestBody @Valid NewCompilationDto compilationDto) {
+        return compilationService.createCompilation(compilationDto);
     }
 
-    @PatchMapping("/{comp-id}")
-    @ResponseStatus(HttpStatus.OK)
-    public CompilationDto updateCompilation(@PathVariable Long compilationId,
-                                            @RequestBody @Valid UpdateCompilationRequest updateCompilation) {
-        return compilationService.updateCompilation(compilationId, updateCompilation);
+    @DeleteMapping("/{compId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteCompilation(@PathVariable Long compId) {
+        compilationService.deleteCompilation(compId);
     }
 
-    @DeleteMapping("/{comp-id}")
-    @ResponseStatus(value = HttpStatus.NO_CONTENT)
-    public void deleteCompilation(@PathVariable("comp-id") @Positive long compilationId) {
-        compilationService.deleteCompilation(compilationId);
+    @PatchMapping("/{compId}")
+    public CompilationDto updateCompilation(@RequestBody @Valid UpdateCompilationDto updateCompilationDto,
+                                            @PathVariable Long compId) {
+        CompilationDto compilationDto = compilationService.updateCompilation(updateCompilationDto, compId);
+        return compilationDto;
     }
 }

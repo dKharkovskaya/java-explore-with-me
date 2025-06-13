@@ -1,10 +1,11 @@
 package ru.practicum.explore.model;
 
+import jakarta.persistence.*;
 import lombok.*;
-import ru.practicum.explore.enums.RequestState;
+import ru.practicum.explore.enums.State;
 
-import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "events")
@@ -54,8 +55,16 @@ public class Event {
     Boolean requestModeration;
 
     @Enumerated(EnumType.STRING)
-    RequestState state;
+    private State state = State.PENDING;
 
     @Column(nullable = false)
     String title;
+
+    private Integer views;
+
+    private float lon;
+    private float lat;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "event", fetch = FetchType.EAGER)
+    private List<Request> requests;
 }

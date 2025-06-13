@@ -1,5 +1,6 @@
 package ru.practicum.explore.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
@@ -9,7 +10,6 @@ import ru.practicum.explore.mapper.StatsMapper;
 import ru.practicum.explore.model.Stats;
 import ru.practicum.explore.service.StatsService;
 
-import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;

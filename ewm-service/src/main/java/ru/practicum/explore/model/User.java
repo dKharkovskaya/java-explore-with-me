@@ -1,10 +1,10 @@
 package ru.practicum.explore.model;
 
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
-import javax.persistence.*;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
 
 @Entity
 @Table(name = "users")
@@ -20,10 +20,8 @@ public class User {
     private Long id;
 
     @Column(name = "name", nullable = false)
-    @NotBlank(message = "Имя не может быть пустым")
     private String name;
 
     @Column(name = "email", nullable = false, unique = true)
-    @Email(message = "Некорректный формат email")
     private String email;
 }

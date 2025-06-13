@@ -2,19 +2,20 @@ package ru.practicum.explore.service;
 
 import ru.practicum.explore.dto.compilation.CompilationDto;
 import ru.practicum.explore.dto.compilation.NewCompilationDto;
-import ru.practicum.explore.dto.compilation.UpdateCompilationRequest;
+import ru.practicum.explore.dto.compilation.UpdateCompilationDto;
 
 import java.util.List;
 
 public interface CompilationService {
-    CompilationDto addCompilation(NewCompilationDto newCompilationDto);
 
-    CompilationDto updateCompilation(Long compId, UpdateCompilationRequest updateCompilation);
+    CompilationDto createCompilation(NewCompilationDto compilationDto);
 
-    void deleteCompilation(Long compilationId);
+    CompilationDto updateCompilation(UpdateCompilationDto updateCompilationDto, Long compId);
 
-    List<CompilationDto> getCompilations(Boolean pinned, Integer from, Integer size);
+    void deleteCompilation(Long compId);
 
-    CompilationDto getCompilationById(Long compilationId);
+    CompilationDto getCompilationById(Long compId);
+
+    List<CompilationDto> getAllEvents(Boolean pinned, Integer from, Integer size);
 
 }

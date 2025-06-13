@@ -1,6 +1,6 @@
 package ru.practicum.explore.enums;
 
-public enum StateActionPrivate {
+public enum StateAction {
     SEND_TO_REVIEW,
     CANCEL_REVIEW
 }
