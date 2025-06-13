@@ -26,7 +26,6 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static java.util.Objects.isNull;
 import static ru.practicum.explore.enums.RequestState.*;
@@ -292,10 +291,7 @@ public class EventServiceImpl implements EventService {
             Location location = new Location();
             location.setLat(request.getLocation().getLat());
             location.setLon(request.getLocation().getLon());
-
-            // Сохраняем location перед привязкой к событию
             location = locationRepository.save(location);
-
             event.setLocation(location);
         }
         if (!isNull(request.getRequestModeration())) {
