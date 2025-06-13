@@ -6,7 +6,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.explore.dto.request.RequestDto;
 import ru.practicum.explore.enums.RequestState;
 import ru.practicum.explore.enums.State;
-import ru.practicum.explore.error.exception.ConflictException;
 import ru.practicum.explore.error.exception.NotFoundException;
 import ru.practicum.explore.mapper.RequestMapper;
 import ru.practicum.explore.model.Event;

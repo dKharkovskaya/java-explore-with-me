@@ -7,7 +7,6 @@ import ru.practicum.explore.model.Event;
 import ru.practicum.explore.model.Location;
 import ru.practicum.explore.model.Request;
 
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static java.util.Objects.isNull;

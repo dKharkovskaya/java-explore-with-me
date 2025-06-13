@@ -7,7 +7,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.client.StatsClient;
 
 import ru.practicum.explore.StatsDtoInput;
-import ru.practicum.explore.StatsDtoOutput;
 import ru.practicum.explore.dto.event.*;
 import ru.practicum.explore.dto.request.RequestDto;
 import ru.practicum.explore.enums.RequestState;
