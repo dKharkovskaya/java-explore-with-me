@@ -3,6 +3,7 @@ package ru.practicum.explore.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.explore.StatsDtoInput;
 import ru.practicum.explore.StatsDtoOutput;
@@ -24,6 +25,7 @@ public class StatsController {
     private final StatsService statsService;
 
     @PostMapping("/hit")
+    @ResponseStatus(HttpStatus.CREATED)
     public Stats hit(@RequestBody @Valid StatsDtoInput dto) {
         Stats stats = StatsMapper.toStats(dto);
         return statsService.hit(stats);
@@ -35,6 +37,9 @@ public class StatsController {
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end,
             @RequestParam(required = false) List<String> uris,
             @RequestParam(defaultValue = "false") Boolean unique) {
+        if (start.isAfter(end)) {
+            throw new IllegalArgumentException("Параметр start должен быть раньше end");
+        }
         if (uris == null || uris.isEmpty()) {
             return unique ?
                     statsService.getStatsUnique(start, end) :
