@@ -17,48 +17,48 @@ public class Event {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    private Long id;
 
     @Column(nullable = false)
-    String annotation;
+    private String annotation;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
-    Category category;
+    private Category category;
 
     @Column(name = "created_on", nullable = false, columnDefinition = "TIMESTAMP")
-    LocalDateTime createdOn;
+    private LocalDateTime createdOn;
 
     @Column(nullable = false)
-    String description;
+    private String description;
 
     @Column(name = "event_date", nullable = false)
-    LocalDateTime eventDate;
+    private LocalDateTime eventDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "initiator_id", nullable = false)
-    User initiator;
+    private User initiator;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "location_id", nullable = false)
-    Location location;
+    private Location location;
 
-    Boolean paid;
+    private Boolean paid;
 
     @Column(name = "participant_limit")
-    Integer participantLimit;
+    private Integer participantLimit;
 
     @Column(name = "published_on")
-    LocalDateTime publishedOn;
+    private LocalDateTime publishedOn;
 
     @Column(name = "request_moderation")
-    Boolean requestModeration;
+    private Boolean requestModeration;
 
     @Enumerated(EnumType.STRING)
     private State state = State.PENDING;
 
     @Column(nullable = false)
-    String title;
+    private String title;
 
     private Integer views;
 

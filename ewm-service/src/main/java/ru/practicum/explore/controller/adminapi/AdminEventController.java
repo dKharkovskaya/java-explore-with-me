@@ -1,6 +1,5 @@
 package ru.practicum.explore.controller.adminapi;
 
-
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -42,7 +41,6 @@ public class AdminEventController {
     @PatchMapping("/{eventId}")
     public EventDto updateEvent(@PathVariable @NotNull Long eventId,
                                 @RequestBody @Valid EventUpdateAdminRequest eventUpdateAdminRequest) {
-        EventDto eventDto = eventService.updateEvent(eventId, eventUpdateAdminRequest);
-        return eventDto;
+        return eventService.updateEvent(eventId, eventUpdateAdminRequest);
     }
 }

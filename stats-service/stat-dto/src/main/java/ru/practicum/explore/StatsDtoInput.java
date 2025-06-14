@@ -15,5 +15,4 @@ public class StatsDtoInput {
     private String ip;
     private String timestamp; // формат: "yyyy-MM-dd HH:mm:ss"
 
-
 }

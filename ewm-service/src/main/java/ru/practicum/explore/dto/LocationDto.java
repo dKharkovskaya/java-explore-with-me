@@ -3,7 +3,6 @@ package ru.practicum.explore.dto;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

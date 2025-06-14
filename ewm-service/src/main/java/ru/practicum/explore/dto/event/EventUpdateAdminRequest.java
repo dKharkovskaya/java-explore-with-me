@@ -39,5 +39,5 @@ public class EventUpdateAdminRequest {
     private AdminStateAction stateAction;
 
     @Size(min = 3, max = 120)
-    String title;
+    private String title;
 }

@@ -15,22 +15,22 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class EventShortDtoWithViews {
-    Long id;
+    private Long id;
 
-    String annotation;
+    private String annotation;
 
-    CategoryDto category;
+    private CategoryDto category;
 
-    Long confirmedRequests;
+    private Long confirmedRequests;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    LocalDateTime eventDate;
+    private LocalDateTime eventDate;
 
-    UserShortDto initiator;
+    private UserShortDto initiator;
 
-    Boolean paid;
+    private Boolean paid;
 
-    String title;
+    private String title;
 
-    Long views;
+    private Long views;
 }

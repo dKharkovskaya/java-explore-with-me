@@ -1,8 +1,6 @@
 package ru.practicum.explore.dto.event;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-
-
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.*;

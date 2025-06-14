@@ -8,7 +8,6 @@ import ru.practicum.explore.model.Compilation;
 
 import static java.util.Objects.isNull;
 
-
 @Slf4j
 @UtilityClass
 public class CompilationMapper {

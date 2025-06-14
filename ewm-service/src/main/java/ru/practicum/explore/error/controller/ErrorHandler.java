@@ -8,7 +8,6 @@ import ru.practicum.explore.error.exception.ConflictException;
 import ru.practicum.explore.error.exception.NotFoundException;
 import ru.practicum.explore.error.model.ErrorResponse;
 
-
 @RestControllerAdvice
 public class ErrorHandler {
 

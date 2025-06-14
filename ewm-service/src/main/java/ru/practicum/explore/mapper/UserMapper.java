@@ -1,6 +1,5 @@
 package ru.practicum.explore.mapper;
 
-
 import ru.practicum.explore.dto.user.NewUserDto;
 import ru.practicum.explore.dto.user.UserDto;
 import ru.practicum.explore.dto.user.UserShortDto;
