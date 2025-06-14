@@ -1,8 +1,8 @@
 package ru.practicum.explore.model;
 
+import jakarta.persistence.*;
 import lombok.*;
 
-import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
@@ -28,4 +28,5 @@ public class Stats {
 
     @Column(name = "time_stamp", nullable = false)
     private LocalDateTime timestamp;
+
 }
