@@ -2,10 +2,12 @@ package ru.practicum.explore;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
-public class StatServer {
+@ComponentScan(basePackages = {"ru.practicum.explore", "ru.practicum.client"})
+public class EwmService {
     public static void main(String[] args) {
-        SpringApplication.run(StatServer.class, args);
+        SpringApplication.run(EwmService.class, args);
     }
 }

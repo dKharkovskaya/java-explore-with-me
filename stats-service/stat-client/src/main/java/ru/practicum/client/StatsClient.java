@@ -1,11 +1,12 @@
 package ru.practicum.client;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.DefaultUriBuilderFactory;
+import org.springframework.web.util.UriComponentsBuilder;
 import ru.practicum.explore.StatsDtoInput;
 import ru.practicum.explore.StatsDtoOutput;
 
@@ -13,36 +14,37 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
-@Component
+@Service
+@RequiredArgsConstructor
 public class StatsClient {
 
     private final RestTemplate restTemplate;
 
-    public StatsClient(@Value("${stats.service.url}") String serviceUrl, RestTemplateBuilder builder) {
-        this.restTemplate = builder
-                .uriTemplateHandler(new DefaultUriBuilderFactory(serviceUrl))
-                .build();
-    }
+    @Value("${stats-server.url}")
+    private String statsServerUrl;
 
-    // Отправляет информацию о посещении
     public void hit(StatsDtoInput dto) {
-        restTemplate.postForObject("/hit", dto, Void.class);
+        HttpEntity<StatsDtoInput> entity = new HttpEntity<>(dto);
+        restTemplate.postForObject(statsServerUrl + "/hit", entity, String.class);
     }
 
-    // Получает статистику за период
-    public List<StatsDtoOutput> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
-        String uri = "/stats?start={start}&end={end}&unique={unique}";
+    public List<StatsDtoOutput> getStats(LocalDateTime start, LocalDateTime end,
+                                         List<String> uris, Boolean unique) {
+        String uri = "http://stats-server-container:9090/stats";
+
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(uri)
+                .queryParam("start", "{start}")
+                .queryParam("end", "{end}")
+                .queryParam("unique", "{unique}");
 
         if (uris != null && !uris.isEmpty()) {
-            StringBuilder sb = new StringBuilder(uri);
-            for (int i = 0; i < uris.size(); i++) {
-                sb.append("&uris=").append(uris.get(i));
+            for (String u : uris) {
+                builder.queryParam("uris", u);
             }
-            uri = sb.toString();
         }
 
         ResponseEntity<StatsDtoOutput[]> response = restTemplate.getForEntity(
-                uri,
+                builder.build().toUriString(), // <-- теперь это абсолютный URL
                 StatsDtoOutput[].class,
                 start.format(StatsDtoInput.DATE_TIME_FORMATTER),
                 end.format(StatsDtoInput.DATE_TIME_FORMATTER),
