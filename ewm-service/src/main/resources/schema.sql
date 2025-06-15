@@ -58,3 +58,11 @@ CREATE TABLE IF NOT EXISTS event_compilation (
     compilation_id BIGINT REFERENCES compilations(id) ON DELETE CASCADE,
     PRIMARY KEY (compilation_id, event_id)
 );
+
+CREATE TABLE IF NOT EXISTS comments(
+    id              BIGSERIAL PRIMARY KEY,
+    text            VARCHAR(7000) NOT NULL,
+    event_id        BIGINT NOT NULL REFERENCES events(id),
+    user_id         BIGINT NOT NULL REFERENCES users(id),
+    created         TIMESTAMP
+);
