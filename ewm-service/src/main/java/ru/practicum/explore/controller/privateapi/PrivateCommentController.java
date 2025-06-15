@@ -6,9 +6,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.explore.dto.comment.CommentInputDto;
 import ru.practicum.explore.dto.comment.CommentShortDto;
-import ru.practicum.explore.error.exception.NotFoundException;
-import ru.practicum.explore.model.Comment;
-import ru.practicum.explore.model.User;
 import ru.practicum.explore.service.CommentService;
 
 @RequestMapping("/users/{userId}/comments")
